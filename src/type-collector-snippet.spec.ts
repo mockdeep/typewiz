@@ -1,4 +1,4 @@
-import { $at } from './type-collector';
+import { $at } from './type-collector-snippet';
 
 describe('type-collector', () => {
     describe('getTypeName', () => {

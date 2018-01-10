@@ -1,10 +1,7 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as ts from 'typescript';
 import * as vm from 'vm';
 
-import { applyTypes } from './apply-types';
-import { instrument } from './instrument';
+import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
 
 describe('integration test', () => {
     it('should correctly infer and set the types', () => {
@@ -56,15 +53,10 @@ describe('integration test', () => {
         const instrumented = instrument(input, 'test.ts');
 
         // Step 2: compile + add the type collector
-        const opts = {
-            module: ts.ModuleKind.None,
-        };
-
-        const typeCollector = ts.transpile(fs.readFileSync(path.join(__dirname, '/type-collector.ts'), 'utf-8'), opts);
-        const compiled = ts.transpile(instrumented, opts);
+        const compiled = ts.transpile(instrumented);
 
         // Step 3: evaluate the code, and collect the runtime type information
-        const collectedTypes = vm.runInNewContext('exports = {};\n' + typeCollector + compiled + '$at.get();');
+        const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$at.get();');
 
         // Step 4: put the collected typed into the code
         const result = applyTypes(input, collectedTypes);

@@ -6,7 +6,7 @@
   "author": "Uri Shaked <uri@urishaked.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && copyfiles -u 1 src/type-collector-snippet.ts dist",
     "prepublish": "npm run build",
     "lint": "tslint -p .",
     "test": "npm run lint && jest",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/jest": "^22.0.0",
+    "copyfiles": "^1.2.0",
     "coveralls": "^3.0.0",
     "jest": "^22.0.4",
     "ts-jest": "^22.0.0",
