@@ -1,6 +1,6 @@
 import { instrument } from './instrument';
 
-describe('auto-types instrument', () => {
+describe('instrument', () => {
     it('should instrument function parameters without types', () => {
         const input = `function (a) { return 5; }`;
         expect(instrument(input, 'test.ts')).toEqual(`function (a) {$at("a",a,11,"test.ts"); return 5; }`);
