@@ -1,5 +1,10 @@
 class NestError extends Error { }
 
+interface IKey {
+    filename: string;
+    pos: number;
+}
+
 export function getTypeName(value: any, nest = 0): string | null {
     if (nest === 5) {
         throw new NestError('NestError');
@@ -29,7 +34,7 @@ export function getTypeName(value: any, nest = 0): string | null {
 const logs: { [key: string]: Set<string> } = {};
 
 export function $at(name: string, value: any, pos: number, filename: string) {
-    const index = JSON.stringify({filename, pos});
+    const index = JSON.stringify({ filename, pos } as IKey);
     try {
         const typeName = getTypeName(value);
         if (!logs[index]) {
@@ -51,8 +56,8 @@ export namespace $at {
     export const typeName = getTypeName;
     export const get = () => {
         return Object.keys(logs).map((key) => {
-            const {fileName, pos} = JSON.parse(key);
-            return [fileName, pos, Array.from(logs[key])];
+            const { filename, pos } = JSON.parse(key) as IKey;
+            return [filename, pos, Array.from(logs[key])];
         });
     };
 }

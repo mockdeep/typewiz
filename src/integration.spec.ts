@@ -62,5 +62,6 @@ describe('integration test', () => {
         const result = applyTypes(input, collectedTypes);
 
         expect(result).toEqual(expected);
+        expect(collectedTypes[0][0]).toEqual('c:\\test.ts');
     });
 });
