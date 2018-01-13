@@ -50,7 +50,7 @@ describe('integration test', () => {
         `;
 
         // Step 1: instrument the source
-        const instrumented = instrument(input, 'test.ts');
+        const instrumented = instrument(input, 'c:\\test.ts');
 
         // Step 2: compile + add the type collector
         const compiled = ts.transpile(instrumented);

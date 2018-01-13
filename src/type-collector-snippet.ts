@@ -29,7 +29,7 @@ export function getTypeName(value: any, nest = 0): string | null {
 const logs: { [key: string]: Set<string> } = {};
 
 export function $at(name: string, value: any, pos: number, filename: string) {
-    const index = filename + ':' + pos;
+    const index = JSON.stringify({filename, pos});
     try {
         const typeName = getTypeName(value);
         if (!logs[index]) {
@@ -51,7 +51,7 @@ export namespace $at {
     export const typeName = getTypeName;
     export const get = () => {
         return Object.keys(logs).map((key) => {
-            const [fileName, pos] = key.split(':');
+            const {fileName, pos} = JSON.parse(key);
             return [fileName, pos, Array.from(logs[key])];
         });
     };
