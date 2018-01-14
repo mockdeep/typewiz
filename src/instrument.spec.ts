@@ -6,6 +6,11 @@ describe('instrument', () => {
         expect(instrument(input, 'test.ts')).toEqual(`function (a) {$at("a",a,11,"test.ts"); return 5; }`);
     });
 
+    it('should correctly instrument optional function parameters', () => {
+        const input = `function (a?) { return 5; }`;
+        expect(instrument(input, 'test.ts')).toEqual(`function (a?) {$at("a",a,12,"test.ts"); return 5; }`);
+    });
+
     it('should instrument class method parameters', () => {
         const input = `class Foo { bar(a) { return 5; } }`;
         expect(instrument(input, 'test.ts')).toEqual(`class Foo { bar(a) {$at("a",a,17,"test.ts"); return 5; } }`);

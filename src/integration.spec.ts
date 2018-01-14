@@ -6,8 +6,8 @@ import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
 describe('integration test', () => {
     it('should correctly infer and set the types', () => {
         const input = `
-            function calculate(a, b) {
-                return a + b;
+            function calculate(a, b?) {
+                return a + (b || 0);
             }
 
             function greet(c) {
@@ -28,8 +28,8 @@ describe('integration test', () => {
         `;
 
         const expected = `
-            function calculate(a: number, b: number) {
-                return a + b;
+            function calculate(a: number, b?: number) {
+                return a + (b || 0);
             }
 
             function greet(c: string) {

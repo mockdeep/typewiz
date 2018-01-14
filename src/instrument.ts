@@ -6,10 +6,11 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
     if ((ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node))) {
         for (const param of node.parameters) {
             if (!param.type && !param.initializer && node.body) {
+                const typeInsertionPos = param.name.getEnd() + (param.questionToken ? 1 : 0);
                 const params = [
                     JSON.stringify(param.name.getText()),
                     param.name.getText(),
-                    param.name.getEnd(),
+                    typeInsertionPos,
                     JSON.stringify(fileName),
                 ];
                 const instrumentExpr = `$at(${params.join(',')});`;
