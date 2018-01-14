@@ -8,7 +8,15 @@ export type ICollectedTypeInfo = Array<[string, number, string[]]>;
 export function applyTypesToFile(source: string, typeInfo: ICollectedTypeInfo) {
     const replacements = [];
     for (const [, pos, types] of typeInfo) {
-        replacements.push(Replacement.insert(pos, ': ' + types.sort().join('|')));
+        const isOptional = source[pos - 1] === '?';
+        let sortedTypes = types.sort();
+        if (isOptional) {
+            sortedTypes = sortedTypes.filter((t) => t !== 'undefined');
+            if (sortedTypes.length === 0) {
+                continue;
+            }
+        }
+        replacements.push(Replacement.insert(pos, ': ' + sortedTypes.join('|')));
     }
     return applyReplacements(source, replacements);
 }

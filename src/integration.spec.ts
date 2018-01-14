@@ -28,10 +28,15 @@ describe('integration test', () => {
             function unused(foo, bar) {
             }
 
+            function optional(b?, c?) {
+                return b || 0;
+            }
+
             calculate(5, 6);
             greet('World');
             commas('Lavender');
             commas(['Apples', 'Oranges']);
+            optional() + optional(10);
         `;
 
         const expected = `
@@ -50,10 +55,15 @@ describe('integration test', () => {
             function unused(foo, bar) {
             }
 
+            function optional(b?: number, c?) {
+                return b || 0;
+            }
+
             calculate(5, 6);
             greet('World');
             commas('Lavender');
             commas(['Apples', 'Oranges']);
+            optional() + optional(10);
         `;
 
         // Step 1: instrument the source
