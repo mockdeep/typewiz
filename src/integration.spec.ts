@@ -1,5 +1,12 @@
+import * as fs from 'fs';
 import * as ts from 'typescript';
 import * as vm from 'vm';
+
+const mockFs = {
+    readFileSync: jest.fn(fs.readFileSync),
+    writeFileSync: jest.fn(fs.writeFileSync),
+};
+jest.mock('fs', () => mockFs);
 
 import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
 
@@ -59,9 +66,12 @@ describe('integration test', () => {
         const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$at.get();');
 
         // Step 4: put the collected typed into the code
-        const result = applyTypes(input, collectedTypes);
+        mockFs.readFileSync.mockReturnValue(input);
+        mockFs.writeFileSync.mockImplementationOnce(() => 0);
 
-        expect(result).toEqual(expected);
-        expect(collectedTypes[0][0]).toEqual('c:\\test.ts');
+        const result = applyTypes(collectedTypes);
+
+        // Verify that we got the expected result
+        expect(mockFs.writeFileSync).toHaveBeenCalledWith('c:\\test.ts', expected);
     });
 });

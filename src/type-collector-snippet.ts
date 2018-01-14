@@ -57,7 +57,7 @@ export namespace $at {
     export const get = () => {
         return Object.keys(logs).map((key) => {
             const { filename, pos } = JSON.parse(key) as IKey;
-            return [filename, pos, Array.from(logs[key])];
+            return [filename, pos, Array.from(logs[key])] as [string, number, string[]];
         });
     };
 }
