@@ -13,7 +13,7 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
                     typeInsertionPos,
                     JSON.stringify(fileName),
                 ];
-                const instrumentExpr = `$at(${params.join(',')});`;
+                const instrumentExpr = `$_$twiz(${params.join(',')});`;
                 replacements.push(Replacement.insert(node.body.getStart() + 1, instrumentExpr));
             }
         }

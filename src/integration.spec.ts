@@ -63,7 +63,7 @@ describe('integration test', () => {
         const compiled = ts.transpile(instrumented);
 
         // Step 3: evaluate the code, and collect the runtime type information
-        const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$at.get();');
+        const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$_$twiz.get();');
 
         // Step 4: put the collected typed into the code
         mockFs.readFileSync.mockReturnValue(input);

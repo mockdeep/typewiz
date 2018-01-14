@@ -33,7 +33,7 @@ export function getTypeName(value: any, nest = 0): string | null {
 
 const logs: { [key: string]: Set<string> } = {};
 
-export function $at(name: string, value: any, pos: number, filename: string) {
+export function $_$twiz(name: string, value: any, pos: number, filename: string) {
     const index = JSON.stringify({ filename, pos } as IKey);
     try {
         const typeName = getTypeName(value);
@@ -52,7 +52,7 @@ export function $at(name: string, value: any, pos: number, filename: string) {
 }
 
 // tslint:disable:no-namespace
-export namespace $at {
+export namespace $_$twiz {
     export const typeName = getTypeName;
     export const get = () => {
         return Object.keys(logs).map((key) => {

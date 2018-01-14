@@ -1,5 +1,5 @@
 import { instrument } from './index';
-import { $at } from './type-collector-snippet';
+import { $_$twiz } from './type-collector-snippet';
 
 type ICompileFunction = (source: string, filename: string) => void;
 
@@ -12,7 +12,7 @@ export function register(options?: IRegisterOptions) {
         extensions: ['.ts', '.tsx'],
     }, options);
 
-    (global as any).$at = $at;
+    (global as any).$_$twiz = $_$twiz;
 
     const oldHooks: {[key: string]: any} = {};
     for (const extension of options.extensions) {

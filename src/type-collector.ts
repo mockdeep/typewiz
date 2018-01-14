@@ -12,6 +12,6 @@ export function getTypeCollectorSnippet() {
     return `(function(host){
         exports = {};
         ${transpiled};
-        host.$at = $at;
+        host.$_$twiz = $_$twiz;
     })(typeof self !== 'undefined' ? self : this);\n`;
 }
