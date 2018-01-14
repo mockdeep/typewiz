@@ -6,7 +6,7 @@ const mockFs = {
     readFileSync: jest.fn(fs.readFileSync),
     writeFileSync: jest.fn(fs.writeFileSync),
 };
-jest.mock('fs', () => mockFs);
+jest.doMock('fs', () => mockFs);
 
 import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
 
