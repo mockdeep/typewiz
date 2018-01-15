@@ -21,9 +21,14 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
     node.forEachChild((child) => visit(child, replacements, fileName));
 }
 
+const declaration = `declare function $_$twiz(name: string, value: any, pos: number, filename: string): void;\n`;
+
 export function instrument(source: string, fileName: string) {
     const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
     const replacements = [] as Replacement[];
     visit(sourceFile, replacements, fileName);
+    if (replacements.length) {
+        replacements.push(Replacement.insert(0, declaration));
+    }
     return applyReplacements(source, replacements);
 }

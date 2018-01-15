@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import * as ts from 'typescript';
 import * as vm from 'vm';
 
+import { transpileSource } from './test-utils/transpile';
+
 const mockFs = {
     readFileSync: jest.fn(fs.readFileSync),
     writeFileSync: jest.fn(fs.writeFileSync),
@@ -70,7 +72,7 @@ describe('integration test', () => {
         const instrumented = instrument(input, 'c:\\test.ts');
 
         // Step 2: compile + add the type collector
-        const compiled = ts.transpile(instrumented);
+        const compiled = transpileSource(instrumented, 'test.ts');
 
         // Step 3: evaluate the code, and collect the runtime type information
         const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$_$twiz.get();');
