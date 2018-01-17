@@ -2,6 +2,7 @@
   "name": "typewiz",
   "version": "0.2.2",
   "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "repository": "https://github.com/urish/typewiz",
   "author": "Uri Shaked <uri@urishaked.com>",
   "license": "MIT",
