@@ -12,12 +12,12 @@ jest.doMock('fs', () => mockFs);
 
 import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
 
-function typeWiz(input: string, fast = true) {
+function typeWiz(input: string, typeCheck = false) {
     // Step 1: instrument the source
     const instrumented = instrument(input, 'c:\\test.ts');
 
     // Step 2: compile + add the type collector
-    const compiled = fast ? ts.transpile(instrumented) : transpileSource(instrumented, 'test.ts');
+    const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
 
     // Step 3: evaluate the code, and collect the runtime type information
     const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$_$twiz.get();');
@@ -51,11 +51,51 @@ describe('integration test', () => {
             greet('World');
         `;
 
-        expect(typeWiz(input, false)).toBe(`
+        expect(typeWiz(input, true)).toBe(`
             function greet(c: string) {
                 return 'Hello ' + c;
             }
             greet('World');
+        `);
+    });
+
+    it('should infer `string` type for class method', () => {
+        const input = `
+            class Greeter {
+                greet(who) {
+                    return 'Hello, ' + who;
+                }
+            }
+            new Greeter().greet('World');
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            class Greeter {
+                greet(who: string) {
+                    return 'Hello, ' + who;
+                }
+            }
+            new Greeter().greet('World');
+        `);
+    });
+
+    it('should infer `string` type for object literal method', () => {
+        const input = `
+            const greeter = {
+                greet(who) {
+                    return 'Hello, ' + who;
+                }
+            }
+            greeter.greet('World');
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            const greeter = {
+                greet(who: string) {
+                    return 'Hello, ' + who;
+                }
+            }
+            greeter.greet('World');
         `);
     });
 
