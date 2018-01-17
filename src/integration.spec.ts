@@ -37,12 +37,12 @@ function typeWiz(input: string, typeCheck = false) {
     }
 }
 
-describe('integration test', () => {
-    beforeEach(() => {
-        mockFs.readFileSync.mockImplementation(fs.readFileSync);
-        jest.clearAllMocks();
-    });
+beforeEach(() => {
+    mockFs.readFileSync.mockImplementation(fs.readFileSync);
+    jest.clearAllMocks();
+});
 
+describe('function parameters', () => {
     it('should infer `string` type for a simple function', () => {
         const input = `
             function greet(c) {
@@ -155,6 +155,90 @@ describe('integration test', () => {
                 return b || 0;
             }
             optional() + optional(10);
+        `);
+    });
+});
+
+describe('class fields', () => {
+    it('should detect `boolean` type for class field', () => {
+        const input = `
+            class Test {
+                passed;
+            }
+            new Test().passed = true;
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            class Test {
+                passed: boolean;
+            }
+            new Test().passed = true;
+        `);
+    });
+
+    it('should detect types for private class fields', () => {
+        const input = `
+            class Test {
+                private passed;
+                constructor() {
+                    this.passed = true;
+                }
+            }
+            new Test();
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            class Test {
+                private passed: boolean;
+                constructor() {
+                    this.passed = true;
+                }
+            }
+            new Test();
+        `);
+    });
+
+    it('should detect types for optional class fields, and not add undefined as a type option', () => {
+        const input = `
+            class Foo {
+                someValue?;
+            }
+            const foo = new Foo();
+            foo.someValue = 5;
+            foo.someValue = '';
+            foo.someValue = undefined;
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            class Foo {
+                someValue?: number|string;
+            }
+            const foo = new Foo();
+            foo.someValue = 5;
+            foo.someValue = '';
+            foo.someValue = undefined;
+        `);
+    });
+
+    it('should detect types for readonly class fields', () => {
+        const input = `
+            class Foo {
+                readonly someValue;
+                constructor() {
+                    this.someValue = 15;
+                }
+            }
+            const foo = new Foo();
+        `;
+
+        expect(typeWiz(input, true)).toBe(`
+            class Foo {
+                readonly someValue: number;
+                constructor() {
+                    this.someValue = 15;
+                }
+            }
+            const foo = new Foo();
         `);
     });
 });
