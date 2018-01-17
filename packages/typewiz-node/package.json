@@ -1,0 +1,29 @@
+{
+  "name": "typewiz-node",
+  "version": "0.1.0",
+  "bin": {
+    "typewiz-node": "dist/typewiz-node.js"
+  },
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": "https://github.com/urish/typewiz",
+  "author": "Uri Shaked <uri@urishaked.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prepublish": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">= 6.4.0"
+  },
+  "dependencies": {
+    "ts-node": "^4.1.0",
+    "typewiz": "^0.2.3"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.2"
+  }
+}
