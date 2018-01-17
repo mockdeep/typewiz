@@ -26,7 +26,8 @@ export function getTypeName(value: any, nest = 0): string | null {
         return `Array<${itemTypes.sort().join('|')}>`;
     }
     if (value.constructor && value.constructor.name) {
-        return value.constructor.name;
+        const { name} = value.constructor;
+        return name === 'Object' ? 'object' : name;
     }
     return typeof value;
 }

@@ -43,6 +43,10 @@ describe('type-collector', () => {
             expect($_$twiz.typeName([['foo'], [], ['bar', 'baz']])).toBe('string[][]');
         });
 
+        it('should return "object" for Objects', () => {
+            expect($_$twiz.typeName({})).toBe('object');
+        });
+
         it('should return "Function" for functions', () => {
             expect($_$twiz.typeName(() => 0)).toBe('Function');
         });
