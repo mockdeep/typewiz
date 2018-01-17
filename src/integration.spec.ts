@@ -12,12 +12,12 @@ jest.doMock('fs', () => mockFs);
 
 import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
 
-function typeWiz(input: string) {
+function typeWiz(input: string, fast = true) {
     // Step 1: instrument the source
     const instrumented = instrument(input, 'c:\\test.ts');
 
     // Step 2: compile + add the type collector
-    const compiled = transpileSource(instrumented, 'test.ts');
+    const compiled = fast ? ts.transpile(instrumented) : transpileSource(instrumented, 'test.ts');
 
     // Step 3: evaluate the code, and collect the runtime type information
     const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$_$twiz.get();');
@@ -51,7 +51,7 @@ describe('integration test', () => {
             greet('World');
         `;
 
-        expect(typeWiz(input)).toBe(`
+        expect(typeWiz(input, false)).toBe(`
             function greet(c: string) {
                 return 'Hello ' + c;
             }
