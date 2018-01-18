@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { IExtraOptions } from './instrument';
 import { applyReplacements, Replacement } from './replacement';
 
-export type ICollectedTypeInfo = Array<[string, number, string[]]>;
+export type ICollectedTypeInfo = Array<[string, number, string[], IExtraOptions]>;
 
 export function applyTypesToFile(source: string, typeInfo: ICollectedTypeInfo) {
     const replacements = [];
-    for (const [, pos, types] of typeInfo) {
+    for (const [, pos, types, opts] of typeInfo) {
         const isOptional = source[pos - 1] === '?';
         let sortedTypes = types.sort();
         if (isOptional) {
@@ -16,12 +17,16 @@ export function applyTypesToFile(source: string, typeInfo: ICollectedTypeInfo) {
                 continue;
             }
         }
+        if (opts && opts.parens) {
+            replacements.push(Replacement.insert(opts.parens[0], '('));
+            replacements.push(Replacement.insert(opts.parens[1], ')'));
+        }
         replacements.push(Replacement.insert(pos, ': ' + sortedTypes.join('|')));
     }
     return applyReplacements(source, replacements);
 }
 
-export function applyTypes(typeInfo: Array<[string, number, string[]]>, rootDir?: string) {
+export function applyTypes(typeInfo: ICollectedTypeInfo, rootDir?: string) {
     const files: {[key: string]: typeof typeInfo} = {};
     for (const entry of typeInfo) {
         const file = entry[0];

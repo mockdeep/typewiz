@@ -3,6 +3,7 @@ class NestError extends Error { }
 interface IKey {
     filename: string;
     pos: number;
+    opts: any;
 }
 
 export function getTypeName(value: any, nest = 0): string | null {
@@ -34,8 +35,8 @@ export function getTypeName(value: any, nest = 0): string | null {
 
 const logs: { [key: string]: Set<string> } = {};
 
-export function $_$twiz(name: string, value: any, pos: number, filename: string) {
-    const index = JSON.stringify({ filename, pos } as IKey);
+export function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any) {
+    const index = JSON.stringify({ filename, pos, opts } as IKey);
     try {
         const typeName = getTypeName(value);
         if (!logs[index]) {
@@ -57,8 +58,8 @@ export namespace $_$twiz {
     export const typeName = getTypeName;
     export const get = () => {
         return Object.keys(logs).map((key) => {
-            const { filename, pos } = JSON.parse(key) as IKey;
-            return [filename, pos, Array.from(logs[key])] as [string, number, string[]];
+            const { filename, pos, opts } = JSON.parse(key) as IKey;
+            return [filename, pos, Array.from(logs[key]), opts] as [string, number, string[], any];
         });
     };
 }

@@ -20,7 +20,7 @@ function typeWiz(input: string, typeCheck = false) {
     const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
 
     // Step 3: evaluate the code, and collect the runtime type information
-    const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + '$_$twiz.get();');
+    const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + ';$_$twiz.get();');
 
     // Step 4: put the collected typed into the code
     mockFs.readFileSync.mockReturnValue(input);
@@ -57,6 +57,22 @@ describe('function parameters', () => {
             }
             greet('World');
         `);
+    });
+
+    it('should find argument types for arrow functions', () => {
+        const input = `((x) => { return x + 5; })(10)`;
+
+        expect(typeWiz(input)).toBe(`((x: number) => { return x + 5; })(10)`);
+    });
+
+    it('should find argument types for arrow function expressions', () => {
+        const input = `((x)=>x+5)(10)`;
+        expect(typeWiz(input)).toBe(`((x: number)=>x+5)(10)`);
+    });
+
+    it('should correcly handle arrow functions without parenthesis around the argument names', () => {
+        const input = `(async x=>x+5)(10)`;
+        expect(typeWiz(input)).toBe(`(async (x: number)=>x+5)(10)`);
     });
 
     it('should infer `string` type for class method', () => {
