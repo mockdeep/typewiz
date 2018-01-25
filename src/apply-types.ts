@@ -17,11 +17,12 @@ export function applyTypesToFile(source: string, typeInfo: ICollectedTypeInfo) {
                 continue;
             }
         }
+        let suffix = '';
         if (opts && opts.parens) {
             replacements.push(Replacement.insert(opts.parens[0], '('));
-            replacements.push(Replacement.insert(opts.parens[1], ')'));
+            suffix = ')';
         }
-        replacements.push(Replacement.insert(pos, ': ' + sortedTypes.join('|')));
+        replacements.push(Replacement.insert(pos, ': ' + sortedTypes.join('|') + suffix));
     }
     return applyReplacements(source, replacements);
 }
