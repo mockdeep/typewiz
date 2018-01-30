@@ -28,11 +28,12 @@ Then, add `typewiz-webpack` to your list of loaders, just after your usual TypeS
   },
 ```
 
-and then add `TypewizPlugin` to your list of plugins. Here is an example of what your final config file may look like:
+Next, add `TypewizPlugin` to your list of plugins, and configure
+your webpack-dev-server to save the collected type info to disk using the provided `typewizCollectorMiddleware` middleware. Here is an example of what your final config file may look like:
 
 ```javascript
 const { CheckerPlugin } = require('awesome-typescript-loader');
-const { TypewizPlugin } = require('typewiz-webpack');
+const { TypewizPlugin, typewizCollectorMiddleware } = require('typewiz-webpack');
 
 module.exports = {
   resolve: {
@@ -49,14 +50,21 @@ module.exports = {
       }
     ]
   },
+
   plugins: [
       new CheckerPlugin(),
       new TypewizPlugin()
-  ]
+  ],
+
+  devServer: {
+    before: function(app) {
+      typewizCollectorMiddleware(app, 'collected-types.json');
+    }
+  }
 };
 ```
 
-Finally, you will need to collect the type info from the web page by calling `$_$twiz.get()` and saving the result to a JSON file, which can then be passed to the `applyTypes()` method from `typewiz` to apply the types to your source code. In the future, this will probably be done automatically by the plugin.
+Finally, run your app with webpack. The collected type information will be saved to disk inside `collected-types.json`. This type information can be passed to the `applyTypes()` method from `typewiz` to apply the types to your source code.
 
 ## Example
 

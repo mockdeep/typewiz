@@ -8,6 +8,18 @@ interface IChunk {
 
 type Compilation = any;
 
+function reporterSnippet(url = '/__typewiz_report', interval = 1000) {
+    return `
+        if (!$_$twiz.timer) {
+            $_$twiz.timer = setInterval(function() {
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', ${JSON.stringify(url)});
+                xhr.send(JSON.stringify($_$twiz.get()));
+            }, ${interval});
+        }
+    `;
+}
+
 export class TypewizPlugin {
     public apply(compiler: Compiler) {
         compiler.plugin('compilation', (compilation) => {
@@ -20,7 +32,8 @@ export class TypewizPlugin {
 
     private wrapFile(compilation: Compilation, fileName: string) {
         compilation.assets[fileName] = new ConcatSource(
-            String(getTypeCollectorSnippet()),
+            getTypeCollectorSnippet(),
+            reporterSnippet(),
             compilation.assets[fileName],
         );
     }
