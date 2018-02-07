@@ -10,9 +10,9 @@ const mockFs = {
 };
 jest.doMock('fs', () => mockFs);
 
-import { applyTypes, getTypeCollectorSnippet, instrument } from './index';
+import { applyTypes, getTypeCollectorSnippet, IApplyTypesOptions, instrument } from './index';
 
-function typeWiz(input: string, typeCheck = false) {
+function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions) {
     // Step 1: instrument the source
     const instrumented = instrument(input, 'c:\\test.ts');
 
@@ -26,7 +26,7 @@ function typeWiz(input: string, typeCheck = false) {
     mockFs.readFileSync.mockReturnValue(input);
     mockFs.writeFileSync.mockImplementationOnce(() => 0);
 
-    applyTypes(collectedTypes);
+    applyTypes(collectedTypes, options);
 
     if (mockFs.writeFileSync.mock.calls.length) {
         expect(mockFs.writeFileSync).toHaveBeenCalledTimes(1);
@@ -256,5 +256,25 @@ describe('class fields', () => {
             }
             const foo = new Foo();
         `);
+    });
+});
+
+describe('apply-types options', () => {
+    describe('prefix', () => {
+        it.only('should add the given prefix in front of the detected types', () => {
+            const input = `
+                function greet(c) {
+                    return 'Hello ' + c;
+                }
+                greet('World');
+            `;
+
+            expect(typeWiz(input, false, { prefix: '/*auto*/'})).toBe(`
+                function greet(c: /*auto*/string) {
+                    return 'Hello ' + c;
+                }
+                greet('World');
+            `);
+        });
     });
 });
