@@ -261,7 +261,7 @@ describe('class fields', () => {
 
 describe('apply-types options', () => {
     describe('prefix', () => {
-        it.only('should add the given prefix in front of the detected types', () => {
+        it('should add the given prefix in front of the detected types', () => {
             const input = `
                 function greet(c) {
                     return 'Hello ' + c;
