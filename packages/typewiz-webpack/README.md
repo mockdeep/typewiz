@@ -52,8 +52,8 @@ module.exports = {
   },
 
   plugins: [
-      new CheckerPlugin(),
-      new TypewizPlugin()
+    new CheckerPlugin(),
+    new TypewizPlugin()
   ],
 
   devServer: {
