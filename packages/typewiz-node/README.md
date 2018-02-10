@@ -17,6 +17,12 @@ or
 
     typewiz-node <main.ts>
 
+If you want to enable typewiz for your mocha test, simply add `-r typewiz-node/dist/register` to your mocha command-line, e.g.:
+
+    mocha -r typewiz-node/dist/register src/**/test.ts
+
+This will run your unit tests, discover type information, and write it back to your source files.
+
 ## Example
 
 Given the following input file:
