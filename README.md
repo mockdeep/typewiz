@@ -1,4 +1,4 @@
-# typewiz
+<img src="https://github.com/kaminskypavel/typewiz/blob/master/assets/typewiz.png?raw=true" alt="TypeWiz"/>
 
 Automatically discover and add missing types in your TypeScript code
 
