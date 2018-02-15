@@ -13,8 +13,9 @@ describe('instrument', () => {
 
     it('should instrument class method parameters', () => {
         const input = `class Foo { bar(a) { return 5; } }`;
-        expect(instrument(input, 'test.ts'))
-            .toMatch(`class Foo { bar(a) {$_$twiz("a",a,17,"test.ts",{}); return 5; } }`);
+        expect(instrument(input, 'test.ts')).toMatch(
+            `class Foo { bar(a) {$_$twiz("a",a,17,"test.ts",{}); return 5; } }`,
+        );
     });
 
     it('should not instrument function parameters that already have a type', () => {

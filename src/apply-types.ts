@@ -43,7 +43,7 @@ export function applyTypesToFile(source: string, typeInfo: ICollectedTypeInfo, o
 }
 
 export function applyTypes(typeInfo: ICollectedTypeInfo, options: IApplyTypesOptions = {}) {
-    const files: {[key: string]: typeof typeInfo} = {};
+    const files: { [key: string]: typeof typeInfo } = {};
     for (const entry of typeInfo) {
         const file = entry[0];
         if (!files[file]) {

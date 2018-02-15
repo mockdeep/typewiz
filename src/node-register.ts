@@ -8,13 +8,16 @@ export interface IRegisterOptions {
 }
 
 export function register(options?: IRegisterOptions) {
-    options = Object.assign({
-        extensions: ['.ts', '.tsx'],
-    }, options);
+    options = Object.assign(
+        {
+            extensions: ['.ts', '.tsx'],
+        },
+        options,
+    );
 
     (global as any).$_$twiz = $_$twiz;
 
-    const oldHooks: {[key: string]: any} = {};
+    const oldHooks: { [key: string]: any } = {};
     for (const extension of options.extensions) {
         const oldHook = require.extensions[extension] || require.extensions['.js'];
         oldHooks[extension] = oldHook;

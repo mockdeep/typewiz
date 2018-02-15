@@ -1,15 +1,12 @@
-module.exports = function (wallaby) {
+module.exports = function(wallaby) {
     return {
-        files: [
-            'src/**/*.ts',
-            { pattern: 'src/**/*.spec.ts', ignore: true },
-        ],
+        files: ['src/**/*.ts', { pattern: 'src/**/*.spec.ts', ignore: true }],
 
         tests: ['src/**/*.spec.ts'],
 
         env: {
             type: 'node',
-            runner: 'node'
+            runner: 'node',
         },
 
         testFramework: 'jest',
@@ -20,11 +17,11 @@ module.exports = function (wallaby) {
                 const createContext = vm.createContext;
                 const runInNewContext = vm.Script.prototype.runInNewContext;
                 const wallabyGlobals = { $_$wp, $_$wpe, $_$w, $_$wf, $_$wv, $_$tracer };
-                vm.createContext = function () {
+                vm.createContext = function() {
                     arguments[0] = Object.assign(arguments[0] || {}, wallabyGlobals);
                     return createContext.apply(this, arguments);
                 };
-                vm.Script.prototype.runInNewContext = function () {
+                vm.Script.prototype.runInNewContext = function() {
                     arguments[0] = Object.assign(arguments[0] || {}, wallabyGlobals);
                     return runInNewContext.apply(this, arguments);
                 };

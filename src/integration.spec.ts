@@ -269,7 +269,7 @@ describe('apply-types options', () => {
                 greet('World');
             `;
 
-            expect(typeWiz(input, false, { prefix: '/*auto*/'})).toBe(`
+            expect(typeWiz(input, false, { prefix: '/*auto*/' })).toBe(`
                 function greet(c: /*auto*/string) {
                     return 'Hello ' + c;
                 }

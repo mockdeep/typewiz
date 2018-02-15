@@ -9,8 +9,13 @@ export interface IExtraOptions {
 
 function hasParensAroundArguments(node: ts.FunctionLike) {
     if (ts.isArrowFunction(node)) {
-        return node.parameters.length !== 1
-            || node.getText().substr(0, node.equalsGreaterThanToken.getStart() - node.getStart()).includes('(');
+        return (
+            node.parameters.length !== 1 ||
+            node
+                .getText()
+                .substr(0, node.equalsGreaterThanToken.getStart() - node.getStart())
+                .includes('(')
+        );
     } else {
         return true;
     }
@@ -27,7 +32,7 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
                 if (isArrow) {
                     opts.arrow = true;
                 }
-                if ( !hasParensAroundArguments(node)) {
+                if (!hasParensAroundArguments(node)) {
                     opts.parens = [node.parameters[0].getStart(), node.parameters[0].getEnd()];
                 }
                 const params = [
@@ -48,8 +53,13 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
         }
     }
 
-    if (ts.isPropertyDeclaration(node) && ts.isIdentifier(node.name) && !node.type
-        && !node.initializer && !node.decorators) {
+    if (
+        ts.isPropertyDeclaration(node) &&
+        ts.isIdentifier(node.name) &&
+        !node.type &&
+        !node.initializer &&
+        !node.decorators
+    ) {
         const name = node.name.getText();
         const params = [
             JSON.stringify(node.name.getText()),
@@ -82,7 +92,7 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
 }
 
 const declaration =
-    `declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;\n`;
+    'declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;\n';
 
 export function instrument(source: string, fileName: string) {
     const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
