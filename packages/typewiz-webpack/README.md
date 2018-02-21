@@ -5,6 +5,10 @@ WebPack plugin that automatically adds types to TypeScript code using [typewiz](
 [![Build Status](https://travis-ci.org/urish/typewiz.png?branch=master)](https://travis-ci.org/urish/typewiz)
 [![Coverage Status](https://coveralls.io/repos/github/urish/typewiz/badge.svg?branch=master)](https://coveralls.io/github/urish/typewiz?branch=master)
 
+## Prerequisites 
+
+Make sure you are using a recent version of [webpack-dev-server](https://github.com/webpack/webpack-dev-server). Version [2.9.0](https://github.com/webpack/webpack-dev-server/releases/tag/v2.9.0) or newer is required.
+
 ## Installation
 
 First, install the plugin:
@@ -64,7 +68,13 @@ module.exports = {
 };
 ```
 
-Finally, run your app with webpack. The collected type information will be saved to disk inside `collected-types.json`. This type information can be passed to the `applyTypes()` method from `typewiz` to apply the types to your source code.
+Finally, run your app with webpack. The collected type information will be saved to disk inside `collected-types.json`. This type information can be passed to the `applyTypes()` method from `typewiz` to apply the types to your source code, e.g.:
+
+```
+node -e "require('typewiz').applyTypes(require('./collected-types.json'))"
+```
+
+Check out [typewiz-webpack-demo](https://github.com/urish/typewiz-webpack-demo) for a complete example of WebPack + TypeWiz setup.
 
 ## Example
 
