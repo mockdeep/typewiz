@@ -1,6 +1,6 @@
 {
   "name": "typewiz-webpack",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": "https://github.com/urish/typewiz",
@@ -10,9 +10,7 @@
     "build": "rimraf dist && tsc",
     "prepublish": "npm run build"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "engines": {
     "node": ">= 6.4.0"
   },

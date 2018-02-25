@@ -1,6 +1,6 @@
 # typewiz-webpack
 
-WebPack plugin that automatically adds types to TypeScript code using [typewiz](https://www.npmjs.com/package/typewiz)
+A Webpack plugin that automatically adds types to TypeScript code using [typewiz](https://www.npmjs.com/package/typewiz)
 
 [![Build Status](https://travis-ci.org/urish/typewiz.png?branch=master)](https://travis-ci.org/urish/typewiz)
 [![Coverage Status](https://coveralls.io/repos/github/urish/typewiz/badge.svg?branch=master)](https://coveralls.io/github/urish/typewiz?branch=master)
@@ -23,7 +23,7 @@ Then, add `typewiz-webpack` to your list of loaders, just after your usual TypeS
 
 ```javascript
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.tsx?$/,
         loaders: ['awesome-typescript-loader', 'typewiz-webpack']
@@ -47,7 +47,7 @@ module.exports = {
   devtool: 'source-map',
 
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.tsx?$/,
         loaders: ['awesome-typescript-loader', 'typewiz-webpack']
