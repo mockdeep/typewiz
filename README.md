@@ -7,14 +7,6 @@ Automatically discover and add missing types in your TypeScript code.
 [![Coverage Status](https://coveralls.io/repos/github/urish/typewiz/badge.svg?branch=master)](https://coveralls.io/github/urish/typewiz?branch=master)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-## Install
-
-    yarn global add typewiz
-
-or
-
-    npm install --global typewiz
-
 ## Introduction
 
 TypeWiz monitors your variable types in runtime, and uses this information to add missing type annotations to your
@@ -43,7 +35,13 @@ For front-end code, please have a look at the [TypeWiz WebPack Plugin](packages/
 For node.js code, please check out the [typewiz-node Runner](packages/typewiz-node/README.md).
 
 If you are interested in creating your own custom integration, see the [Integration Test](src/integration.spec.ts) 
-for an example how to directly use the TypeWiz API.
+for an example how to directly use the TypeWiz API. You can use the API directly by adding this library to your project:
+
+    yarn add -D typewiz
+
+or
+
+    npm install --save-dev typewiz
 
 ## License
 
