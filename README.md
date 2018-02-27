@@ -28,6 +28,10 @@ function add(a: number, b: number) {
 add(5, 6);
 ```
 
+You can learn more about the project in the blog post:
+
+[Manual Typing is No Fun: Introducing TypeWiz!](https://medium.com/@urish/manual-typing-is-no-fun-introducing-typewiz-58e3e8813f4c)
+
 ## Usage
 
 For front-end code, please have a look at the [TypeWiz WebPack Plugin](packages/typewiz-webpack/README.md).
