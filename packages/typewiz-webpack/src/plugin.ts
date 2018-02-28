@@ -41,7 +41,9 @@ export class TypewizPlugin {
     private wrapChunks(compilation: Compilation, chunks: IChunk[]) {
         chunks.forEach((chunk) => {
             chunk.files.forEach((fileName) => {
-                this.wrapFile(compilation, fileName);
+                if (/\.js$/i.test(fileName)) {
+                    this.wrapFile(compilation, fileName);
+                }
             });
         });
     }
