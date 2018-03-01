@@ -1,6 +1,6 @@
 {
   "name": "typewiz-node",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "bin": {
     "typewiz-node": "dist/typewiz-node.js"
   },
@@ -13,9 +13,7 @@
     "build": "rimraf dist && tsc",
     "prepublish": "npm run build"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "engines": {
     "node": ">= 6.4.0"
   },
