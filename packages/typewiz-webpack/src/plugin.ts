@@ -21,6 +21,7 @@ function reporterSnippet(url = '/__typewiz_report', interval = 1000) {
 }
 
 export class TypewizPlugin {
+    private typeCollectorSnippet = getTypeCollectorSnippet();
     public apply(compiler: Compiler) {
         compiler.plugin('compilation', (compilation) => {
             compilation.plugin('optimize-chunk-assets', (chunks: IChunk[], done: () => void) => {
@@ -32,7 +33,7 @@ export class TypewizPlugin {
 
     private wrapFile(compilation: Compilation, fileName: string) {
         compilation.assets[fileName] = new ConcatSource(
-            getTypeCollectorSnippet(),
+            this.typeCollectorSnippet,
             reporterSnippet(),
             compilation.assets[fileName],
         );
