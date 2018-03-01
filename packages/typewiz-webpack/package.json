@@ -15,11 +15,11 @@
     "node": ">= 6.4.0"
   },
   "dependencies": {
-    "@types/express": "^4.11.0",
     "typewiz": "^0.5.0",
     "webpack-sources": "^1.1.0"
   },
   "devDependencies": {
+    "@types/express": "^4.11.0",
     "@types/webpack": "^3.8.3",
     "@types/webpack-sources": "^0.1.4",
     "rimraf": "^2.6.2"
