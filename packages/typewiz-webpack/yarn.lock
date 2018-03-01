@@ -148,9 +148,9 @@ typescript@^2.4.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.6.2.tgz#3c5b6fd7f6de0914269027f03c0946758f7673a4"
 
-typewiz@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/typewiz/-/typewiz-0.4.0.tgz#d55dc79fe0a7277a460e3ea1d6b1062a72b9fd54"
+typewiz@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/typewiz/-/typewiz-0.5.0.tgz#1a8bfdc41d6bb0b52a772fbc949efdcb8dd07702"
   dependencies:
     typescript "^2.4.2"
 
