@@ -2,6 +2,10 @@ import * as ts from 'typescript';
 
 import { applyReplacements, Replacement } from './replacement';
 
+export interface IInstrumentOptions {
+    instrumentCallExpressions: boolean;
+}
+
 export interface IExtraOptions {
     arrow?: boolean;
     parens?: [number, number];
@@ -21,7 +25,7 @@ function hasParensAroundArguments(node: ts.FunctionLike) {
     }
 }
 
-function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
+function visit(node: ts.Node, replacements: Replacement[], fileName: string, options: IInstrumentOptions) {
     const isArrow = ts.isArrowFunction(node);
     if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
         const isShortArrow = ts.isArrowFunction(node) && !ts.isBlock(node.body);
@@ -45,10 +49,23 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
                 const instrumentExpr = `$_$twiz(${params.join(',')})`;
                 if (isShortArrow) {
                     replacements.push(Replacement.insert(node.body.getStart(), `(${instrumentExpr},`));
-                    replacements.push(Replacement.insert(node.body.getEnd(), `)`));
+                    replacements.push(Replacement.insert(node.body.getEnd(), `)`, 10));
                 } else {
                     replacements.push(Replacement.insert(node.body.getStart() + 1, `${instrumentExpr};`));
                 }
+            }
+        }
+    }
+
+    if (
+        options.instrumentCallExpressions &&
+        ts.isCallExpression(node) &&
+        node.expression.getText() !== 'require.context'
+    ) {
+        for (const arg of node.arguments) {
+            if (!ts.isStringLiteral(arg) && !ts.isNumericLiteral(arg)) {
+                replacements.push(Replacement.insert(arg.getStart(), '$_$twiz.track('));
+                replacements.push(Replacement.insert(arg.getEnd(), `,${JSON.stringify(fileName)},${arg.getStart()})`));
             }
         }
     }
@@ -88,16 +105,24 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string) {
         }
     }
 
-    node.forEachChild((child) => visit(child, replacements, fileName));
+    node.forEachChild((child) => visit(child, replacements, fileName, options));
 }
 
-const declaration =
-    'declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;\n';
+const declaration = `
+    declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;
+    declare namespace $_$twiz {
+        function track<T>(v: T, p: number, f: string): T;
+    }
+`;
 
-export function instrument(source: string, fileName: string) {
+export function instrument(source: string, fileName: string, options?: IInstrumentOptions) {
+    const instrumentOptions: IInstrumentOptions = {
+        instrumentCallExpressions: false,
+        ...options,
+    };
     const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
     const replacements = [] as Replacement[];
-    visit(sourceFile, replacements, fileName);
+    visit(sourceFile, replacements, fileName, instrumentOptions);
     if (replacements.length) {
         replacements.push(Replacement.insert(0, declaration));
     }
