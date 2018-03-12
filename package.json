@@ -1,52 +1,52 @@
 {
-    "name": "typewiz",
-    "version": "0.5.0",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "repository": "https://github.com/urish/typewiz",
-    "author": "Uri Shaked <uri@urishaked.com>",
-    "license": "MIT",
-    "scripts": {
-        "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts dist",
-        "format": "prettier --write src/**/*.ts packages/**/src/**.ts",
-        "precommit": "lint-staged",
-        "prepublish": "npm run build",
-        "lint": "tslint -p .",
-        "test": "npm run lint && jest",
-        "test:ci": "npm run lint && jest --coverage && cat ./coverage/lcov.info | coveralls",
-        "test:watch": "jest --watch"
+  "name": "typewiz",
+  "version": "0.6.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": "https://github.com/urish/typewiz",
+  "author": "Uri Shaked <uri@urishaked.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts dist",
+    "format": "prettier --write src/**/*.ts packages/**/src/**.ts",
+    "precommit": "lint-staged",
+    "prepublish": "npm run build",
+    "lint": "tslint -p .",
+    "test": "npm run lint && jest",
+    "test:ci": "npm run lint && jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "test:watch": "jest --watch"
+  },
+  "files": ["dist"],
+  "dependencies": {
+    "typescript": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.0.0",
+    "copyfiles": "^1.2.0",
+    "coveralls": "^3.0.0",
+    "husky": "^0.14.3",
+    "jest": "^22.0.4",
+    "lint-staged": "^6.1.0",
+    "prettier": "^1.10.2",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^22.0.0",
+    "ts-node": "^4.1.0",
+    "tslint": "^5.8.0"
+  },
+  "jest": {
+    "moduleFileExtensions": ["ts", "js"],
+    "transform": {
+      "\\.ts$": "ts-jest"
     },
-    "files": ["dist"],
-    "dependencies": {
-        "typescript": "^2.4.2"
-    },
-    "devDependencies": {
-        "@types/jest": "^22.0.0",
-        "copyfiles": "^1.2.0",
-        "coveralls": "^3.0.0",
-        "husky": "^0.14.3",
-        "jest": "^22.0.4",
-        "lint-staged": "^6.1.0",
-        "prettier": "^1.10.2",
-        "rimraf": "^2.6.2",
-        "ts-jest": "^22.0.0",
-        "ts-node": "^4.1.0",
-        "tslint": "^5.8.0"
-    },
-    "jest": {
-        "moduleFileExtensions": ["ts", "js"],
-        "transform": {
-            "\\.ts$": "ts-jest"
-        },
-        "testMatch": ["**/*.spec.ts"],
-        "collectCoverageFrom": ["src/**/*.ts", "!src/**/*.spec.ts"],
-        "mapCoverage": true
-    },
-    "engines": {
-        "node": ">= 6.4.0"
-    },
-    "lint-staged": {
-        "*.{js,json}": ["prettier --write", "git add"],
-        "*.ts": ["prettier --write", "tslint --fix", "git add"]
-    }
+    "testMatch": ["**/*.spec.ts"],
+    "collectCoverageFrom": ["src/**/*.ts", "!src/**/*.spec.ts"],
+    "mapCoverage": true
+  },
+  "engines": {
+    "node": ">= 6.4.0"
+  },
+  "lint-staged": {
+    "*.{js,json}": ["prettier --write", "git add"],
+    "*.ts": ["prettier --write", "tslint --fix", "git add"]
+  }
 }
