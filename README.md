@@ -28,9 +28,10 @@ function add(a: number, b: number) {
 add(5, 6);
 ```
 
-You can learn more about the project in the blog post:
+You can learn more about the project in the blog posts:
 
-[Manual Typing is No Fun: Introducing TypeWiz!](https://medium.com/@urish/manual-typing-is-no-fun-introducing-typewiz-58e3e8813f4c)
+* [Manual Typing is No Fun: Introducing TypeWiz!](https://medium.com/@urish/manual-typing-is-no-fun-introducing-typewiz-58e3e8813f4c)
+* [Diving into the Internals of TypeScript: How I Built TypeWiz](https://medium.com/@urish/diving-into-the-internals-of-typescript-how-i-built-typewiz-d273bbef3565)
 
 ## Usage
 
