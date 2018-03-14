@@ -28,6 +28,12 @@ The code is formatted using prettier. You can (and should) format your code befo
     
 The project provides [Wallaby.js](https://wallabyjs.com/) configuration, you can use it to automatically run the tests in your IDE as you edit the code.
 
+## Project structure
+
+- [src](src) - Core typewiz library
+- [packages/typewiz-node](packages/typewiz-node) - Node JS runner
+- [packages/typewiz-webpack](packages/typewiz-webpack) - Webpack Loader + Plugin
+
 ## License
 
 All contributed code will be licensed under the MIT license. By submitting a pull-request you are agreeing to publish your code under this license.
