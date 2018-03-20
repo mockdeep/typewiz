@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as ts from 'typescript';
 import * as vm from 'vm';
 
-import { transpileSource } from './test-utils/transpile';
+import { transpileSource, virtualCompilerHost } from './test-utils/transpile';
 
 const mockFs = {
     readFileSync: jest.fn(fs.readFileSync),
@@ -14,7 +14,7 @@ import { applyTypes, getTypeCollectorSnippet, IApplyTypesOptions, instrument } f
 
 function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions) {
     // Step 1: instrument the source
-    const instrumented = instrument(input, 'c:\\test.ts');
+    const instrumented = instrument(input, 'c:\\test.ts', { instrumentCallExpressions: true });
 
     // Step 2: compile + add the type collector
     const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
@@ -26,7 +26,34 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     mockFs.readFileSync.mockReturnValue(input);
     mockFs.writeFileSync.mockImplementationOnce(() => 0);
 
+    if (options && options.tsConfig) {
+        options.tsCompilerHost = virtualCompilerHost(input, 'c:/test.ts');
+        options.tsConfigHost = {
+            fileExists: ts.sys.fileExists,
+
+            // readDirectory will be called by applyTypes to get the names of files included in
+            // the typescript project. We return a mock value with our test script path.
+            readDirectory: () => ['c:/test.ts'],
+
+            // readFile will be called to read the compiler options from tsconfig.json, so we mock
+            // it to return a basic configuration that will be used during the integration tests
+            readFile: jest.fn(() =>
+                JSON.stringify({
+                    compilerOptions: {
+                        target: 'es2015',
+                    },
+                    include: ['test.ts'],
+                }),
+            ),
+            useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
+        };
+    }
+
     applyTypes(collectedTypes, options);
+
+    if (options && options.tsConfig) {
+        expect(options.tsConfigHost.readFile).toHaveBeenCalledWith(options.tsConfig);
+    }
 
     if (mockFs.writeFileSync.mock.calls.length) {
         expect(mockFs.writeFileSync).toHaveBeenCalledTimes(1);
@@ -171,6 +198,44 @@ describe('function parameters', () => {
                 return b || 0;
             }
             optional() + optional(10);
+        `);
+    });
+
+    it('should use TypeScript inference to find argument types', () => {
+        const input = `
+            function f(a) {
+            }
+
+            const arr: string[] = [];
+            f(arr);
+        `;
+
+        expect(typeWiz(input, false, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+            function f(a: string[]) {
+            }
+
+            const arr: string[] = [];
+            f(arr);
+        `);
+    });
+
+    it('should discover generic types using Type Inference', () => {
+        const input = `
+            function f(a) {
+                return a;
+            }
+
+            const promise = Promise.resolve(15);
+            f(promise);
+        `;
+
+        expect(typeWiz(input, false, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+            function f(a: Promise<number>) {
+                return a;
+            }
+
+            const promise = Promise.resolve(15);
+            f(promise);
         `);
     });
 });
