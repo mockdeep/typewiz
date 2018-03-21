@@ -28,6 +28,17 @@ The code is formatted using prettier. You can (and should) format your code befo
     
 The project provides [Wallaby.js](https://wallabyjs.com/) configuration, you can use it to automatically run the tests in your IDE as you edit the code.
 
+## Testing TypeWiz on a Node.js project using [typewiz-node](packages/typewiz-node)
+
+If you make some changes to TypeWiz and wish to test them on a Node.js project, you can follow these steps:
+
+1. Clone typewiz, and make some changes
+2. Run `yarn build` and then `yarn link` inside the typewiz directory
+3. Go to your Node.js project folder, and run `yarn add -D typewiz-node` and `yarn link typewiz` 
+4. Run your project's entry point with typewiz-node, e.g. `yarn typewiz-node index.ts`
+
+Whenever you make any changes to typewiz and want to test them, simply run `yarn build` in the typewiz directory again. You don't need to repeat the linking part.
+
 ## Project structure
 
 - [src](src) - Core typewiz library
