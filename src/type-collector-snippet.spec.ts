@@ -43,9 +43,6 @@ describe('type-collector', () => {
             expect($_$twiz.typeName([['foo'], [], ['bar', 'baz']])).toBe('string[][]');
         });
 
-        it('should return "object" for Objects', () => {
-            expect($_$twiz.typeName({})).toBe('object');
-        });
         it('should throw a NestError in case of array has includes itself', () => {
             const a: any[] = [];
             a.push(a);
@@ -136,6 +133,41 @@ describe('type-collector', () => {
             });
 
             /* tslint:enable:only-arrow-functions*/
+        });
+
+        describe('objects', () => {
+            it('should output nice empty object for empty objects', () => {
+                expect($_$twiz.typeName({})).toBe('{}');
+            });
+            it("should infer simple one-level objects' types", () => {
+                expect($_$twiz.typeName({ foo: 'hello', bar: 42, baz: true })).toBe(
+                    '{ foo: string, bar: number, baz: boolean }',
+                );
+            });
+            it('should infer nested simple objects', () => {
+                expect($_$twiz.typeName({ foo: { bar: { baz: 'hello' } } })).toBe('{ foo: { bar: { baz: string } } }');
+            });
+            it('should work with functions', () => {
+                expect(
+                    $_$twiz.typeName({
+                        foo: () => 42,
+                        bar(param: boolean) {
+                            return 'hello';
+                        },
+                    }),
+                ).toBe('{ foo: () => any, bar: (param: any) => any }'); // Can't infer function types yet :(
+            });
+            it('should work with array values', () => {
+                expect($_$twiz.typeName({ foo: ['hello', 'world'], bar: ['hello', 42] })).toBe(
+                    '{ foo: string[], bar: Array<number|string> }',
+                );
+            });
+            it('should throw on circular references', () => {
+                const x = {} as any;
+                x.foo = x;
+
+                expect(() => $_$twiz.typeName(x)).toThrowError('NestError');
+            });
         });
     });
 });

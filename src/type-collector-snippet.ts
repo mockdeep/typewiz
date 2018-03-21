@@ -75,7 +75,7 @@ export function getTypeName(value: any, nest = 0): string | null {
     if (value.constructor && value.constructor.name) {
         const { name } = value.constructor;
         if (name === 'Object') {
-            return getObjectTypes(value);
+            return getObjectTypes(value, nest);
         } else {
             return name;
         }
@@ -84,17 +84,13 @@ export function getTypeName(value: any, nest = 0): string | null {
     return typeof value;
 }
 
-function getObjectTypes(obj: any): string {
-    let type = '{';
+function getObjectTypes(obj: any, nest: number): string {
     const keys = Object.keys(obj);
-    keys.forEach((key: string) => {
-        const typeOfKey = getTypeName(obj[key]);
-        type += ` ${key}: ${typeOfKey},`;
-    });
-    // remove last comma
-    type = type.slice(0, -1);
-    type += ' }';
-    return type;
+    if (keys.length === 0) {
+        return '{}';
+    }
+    const keyValuePairs = keys.map((key) => `${key}: ${getTypeName(obj[key], nest + 1)}`);
+    return `{ ${keyValuePairs.join(', ')} }`;
 }
 
 const logs: { [key: string]: Set<string> } = {};
