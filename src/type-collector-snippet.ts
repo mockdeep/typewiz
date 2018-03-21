@@ -74,10 +74,27 @@ export function getTypeName(value: any, nest = 0): string | null {
     }
     if (value.constructor && value.constructor.name) {
         const { name } = value.constructor;
-        return name === 'Object' ? 'object' : name;
+        if (name === 'Object') {
+            return getObjectTypes(value);
+        } else {
+            return name;
+        }
     }
 
     return typeof value;
+}
+
+function getObjectTypes(obj: any): string {
+    let type = '{';
+    const keys = Object.keys(obj);
+    keys.forEach((key: string) => {
+        const typeOfKey = getTypeName(obj[key]);
+        type += ` ${key}: ${typeOfKey},`;
+    });
+    // remove last comma
+    type = type.slice(0, -1);
+    type += ' }';
+    return type;
 }
 
 const logs: { [key: string]: Set<string> } = {};
