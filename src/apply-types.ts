@@ -67,7 +67,13 @@ export function applyTypesToFile(
             replacements.push(Replacement.insert(opts.parens[0], '('));
             suffix = ')';
         }
+        if (opts && opts.comma) {
+            suffix = ', ';
+        }
         replacements.push(Replacement.insert(pos, ': ' + prefix + sortedTypes.join('|') + suffix));
+        if (opts && opts.thisType) {
+            replacements.push(Replacement.insert(pos, 'this'));
+        }
     }
     return applyReplacements(source, replacements);
 }

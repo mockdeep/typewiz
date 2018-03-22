@@ -13,19 +13,7 @@ jest.doMock('fs', () => mockFs);
 import { applyTypes, getTypeCollectorSnippet, IApplyTypesOptions, instrument } from './index';
 
 function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions) {
-    // Step 1: instrument the source
-    const instrumented = instrument(input, 'c:\\test.ts', { instrumentCallExpressions: true });
-
-    // Step 2: compile + add the type collector
-    const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
-
-    // Step 3: evaluate the code, and collect the runtime type information
-    const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + ';$_$twiz.get();');
-
-    // Step 4: put the collected typed into the code
-    mockFs.readFileSync.mockReturnValue(input);
-    mockFs.writeFileSync.mockImplementationOnce(() => 0);
-
+    // setup options to allow using the TypeChecker
     if (options && options.tsConfig) {
         options.tsCompilerHost = virtualCompilerHost(input, 'c:/test.ts');
         options.tsConfigHost = {
@@ -49,6 +37,23 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
         };
     }
 
+    // Step 1: instrument the source
+    const instrumented = instrument(input, 'c:\\test.ts', {
+        instrumentCallExpressions: true,
+        instrumentImplicitThis: true,
+        ...options,
+    });
+
+    // Step 2: compile + add the type collector
+    const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
+
+    // Step 3: evaluate the code, and collect the runtime type information
+    const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + ';$_$twiz.get();');
+
+    // Step 4: put the collected typed into the code
+    mockFs.readFileSync.mockReturnValue(input);
+    mockFs.writeFileSync.mockImplementationOnce(() => 0);
+
     applyTypes(collectedTypes, options);
 
     if (options && options.tsConfig) {
@@ -70,6 +75,61 @@ beforeEach(() => {
 });
 
 describe('function parameters', () => {
+    it('should find `this` type', () => {
+        const input = `
+            class Greeter {
+                text = "Hello World";
+                sayGreeting = greet;
+            }
+            function greet() {
+                return this.text;
+            }
+            const greeter = new Greeter();
+            greeter.sayGreeting();
+        `;
+
+        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+            class Greeter {
+                text = "Hello World";
+                sayGreeting = greet;
+            }
+            function greet(this: Greeter) {
+                return this.text;
+            }
+            const greeter = new Greeter();
+            greeter.sayGreeting();
+        `);
+    });
+
+    it('should not add `this` type', () => {
+        const input = `
+            class Greeter {
+                text;
+                constructor(){
+                    this.text = "Hello World";
+                }
+                sayGreeting() {
+                    return this.text;
+                }
+            }
+            const greeter = new Greeter();
+            greeter.sayGreeting();
+        `;
+        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+            class Greeter {
+                text;
+                constructor(){
+                    this.text = "Hello World";
+                }
+                sayGreeting() {
+                    return this.text;
+                }
+            }
+            const greeter = new Greeter();
+            greeter.sayGreeting();
+        `);
+    });
+
     it('should infer `string` type for a simple function', () => {
         const input = `
             function greet(c) {
