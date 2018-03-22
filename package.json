@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts dist",
-    "format": "prettier --write src/**/*.ts packages/**/src/**.ts",
+    "format": "prettier --write src/*.ts src/**/*.ts packages/**/src/**.ts",
     "precommit": "lint-staged",
     "prepublish": "npm run build",
     "lint": "tslint -p .",
