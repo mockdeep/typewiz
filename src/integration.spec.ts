@@ -28,6 +28,7 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
             readFile: jest.fn(() =>
                 JSON.stringify({
                     compilerOptions: {
+                        noImplicitThis: true,
                         target: 'es2015',
                     },
                     include: ['test.ts'],
@@ -117,7 +118,7 @@ describe('function parameters', () => {
         `;
         expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
             class Greeter {
-                text;
+                text: string;
                 constructor(){
                     this.text = "Hello World";
                 }

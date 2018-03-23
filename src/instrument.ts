@@ -35,17 +35,40 @@ function visit(
     fileName: string,
     options: IInstrumentOptions,
     program?: ts.Program,
+    semanticDiagnostics?: ReadonlyArray<ts.Diagnostic>,
 ) {
     const isArrow = ts.isArrowFunction(node);
     if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
         if (node.body) {
-            // 'this' type inference requires at least typescript 2.5.0
             const needsThisInstrumentation =
                 options.instrumentImplicitThis &&
                 program &&
-                (program.getTypeChecker() as any).tryGetThisTypeAt &&
-                (program.getTypeChecker() as any).tryGetThisTypeAt(node) === undefined &&
-                node.body.getText().includes('this');
+                semanticDiagnostics &&
+                semanticDiagnostics.find((diagnostic) => {
+                    if (
+                        diagnostic.code === 2683 &&
+                        diagnostic.file &&
+                        diagnostic.file.fileName === node.getSourceFile().fileName &&
+                        diagnostic.start
+                    ) {
+                        if (ts.isBlock(node)) {
+                            const body = node.body as ts.FunctionBody;
+                            return (
+                                body.statements.find((statement) => {
+                                    return (
+                                        diagnostic.start !== undefined &&
+                                        statement.pos <= diagnostic.start &&
+                                        diagnostic.start <= statement.end
+                                    );
+                                }) !== undefined
+                            );
+                        } else {
+                            const body = node.body as ts.Expression;
+                            return body.pos <= diagnostic.start && diagnostic.start <= body.end;
+                        }
+                    }
+                    return false;
+                }) !== undefined;
             if (needsThisInstrumentation) {
                 const opts: IExtraOptions = { thisType: true };
                 if (node.parameters.length > 0) {
@@ -141,7 +164,7 @@ function visit(
         }
     }
 
-    node.forEachChild((child) => visit(child, replacements, fileName, options, program));
+    node.forEachChild((child) => visit(child, replacements, fileName, options, program, semanticDiagnostics));
 }
 
 const declaration = `
@@ -158,9 +181,14 @@ export function instrument(source: string, fileName: string, options?: IInstrume
         ...options,
     };
     const program: ts.Program | undefined = getProgram(instrumentOptions);
-    const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
+    const sourceFile = program
+        ? program.getSourceFile(fileName)
+        : ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
     const replacements = [] as Replacement[];
-    visit(sourceFile, replacements, fileName, instrumentOptions, program);
+    if (sourceFile) {
+        const semanticDiagnostics = program ? program.getSemanticDiagnostics(sourceFile) : undefined;
+        visit(sourceFile, replacements, fileName, instrumentOptions, program, semanticDiagnostics);
+    }
     if (replacements.length) {
         replacements.push(Replacement.insert(0, declaration));
     }
