@@ -76,7 +76,7 @@ beforeEach(() => {
 });
 
 describe('function parameters', () => {
-    it('should find `this` type', () => {
+    it('should add `this` type', () => {
         const input = `
             class Greeter {
                 text = "Hello World";
@@ -99,6 +99,32 @@ describe('function parameters', () => {
             }
             const greeter = new Greeter();
             greeter.sayGreeting();
+        `);
+    });
+
+    it('should add `this` type before parameter', () => {
+        const input = `
+            class Greeter {
+                text = "Hello World: ";
+                sayGreeting = greet;
+            }
+            function greet(name) {
+                return this.text + name;
+            }
+            const greeter = new Greeter();
+            greeter.sayGreeting('user');
+        `;
+
+        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+            class Greeter {
+                text = "Hello World: ";
+                sayGreeting = greet;
+            }
+            function greet(this: Greeter, name: string) {
+                return this.text + name;
+            }
+            const greeter = new Greeter();
+            greeter.sayGreeting('user');
         `);
     });
 

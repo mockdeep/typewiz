@@ -51,7 +51,7 @@ function visit(
                         diagnostic.file.fileName === node.getSourceFile().fileName &&
                         diagnostic.start
                     ) {
-                        if (ts.isBlock(node)) {
+                        if (node.body && ts.isBlock(node.body)) {
                             const body = node.body as ts.FunctionBody;
                             return (
                                 body.statements.find((statement) => {
