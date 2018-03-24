@@ -1,11 +1,17 @@
+import { IExtraOptions } from './instrument';
+
 class NestError extends Error {}
 
 export type ISourceLocation = [string, number]; /* filename, offset */
 
+export type ICollectedTypeInfo = Array<
+    [string, number, Array<[string | undefined, ISourceLocation | undefined]>, IExtraOptions]
+>;
+
 interface IKey {
     filename: string;
     pos: number;
-    opts: any;
+    opts: ICollectedTypeInfo;
 }
 
 export function getTypeName(value: any, nest = 0): string | null {
@@ -77,7 +83,7 @@ export function getTypeName(value: any, nest = 0): string | null {
 const logs: { [key: string]: Set<string> } = {};
 const trackedObjects = new WeakMap<object, ISourceLocation>();
 
-export function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any) {
+export function $_$twiz(name: string, value: any, pos: number, filename: string, opts: ICollectedTypeInfo) {
     const objectDeclaration = trackedObjects.get(value);
     const index = JSON.stringify({ filename, pos, opts } as IKey);
     try {

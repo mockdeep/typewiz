@@ -2,36 +2,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import { IExtraOptions } from './instrument';
+import { getProgram, ICompilerOptions } from './compiler-helper';
 import { applyReplacements, Replacement } from './replacement';
-import { ISourceLocation } from './type-collector-snippet';
+import { ICollectedTypeInfo, ISourceLocation } from './type-collector-snippet';
 
-export type ICollectedTypeInfo = Array<
-    [string, number, Array<[string | undefined, ISourceLocation | undefined]>, IExtraOptions]
->;
-
-export interface IApplyTypesOptions {
+export interface IApplyTypesOptions extends ICompilerOptions {
     /**
      * A prefix that will be added in front of each type applied. You can use a javascript comment
      * to mark the automatically added types. The prefix will be added after the colon character,
      * just before the actual type.
      */
     prefix?: string;
-
-    /**
-     * If given, all the file paths in the collected type info will be resolved relative to this directory.
-     */
-    rootDir?: string;
-
-    /**
-     * Path to your project's tsconfig file
-     */
-    tsConfig?: string;
-
-    // You probably never need to touch these two - they are used by the integration tests to setup
-    // a virtual file system for TS:
-    tsConfigHost?: ts.ParseConfigHost;
-    tsCompilerHost?: ts.CompilerHost;
 }
 
 function findType(program?: ts.Program, typeName?: string, sourcePos?: ISourceLocation) {
@@ -76,34 +57,26 @@ export function applyTypesToFile(
             continue;
         }
 
+        let thisPrefix = '';
         let suffix = '';
         if (opts && opts.parens) {
             replacements.push(Replacement.insert(opts.parens[0], '('));
             suffix = ')';
         }
-        replacements.push(Replacement.insert(pos, ': ' + prefix + sortedTypes.join('|') + suffix));
+        if (opts && opts.comma) {
+            suffix = ', ';
+        }
+        if (opts && opts.thisType) {
+            thisPrefix = 'this';
+        }
+        replacements.push(Replacement.insert(pos, thisPrefix + ': ' + prefix + sortedTypes.join('|') + suffix));
     }
     return applyReplacements(source, replacements);
 }
 
 export function applyTypes(typeInfo: ICollectedTypeInfo, options: IApplyTypesOptions = {}) {
     const files: { [key: string]: typeof typeInfo } = {};
-    let program: ts.Program | undefined;
-    if (options.tsConfig) {
-        const configHost = options.tsConfigHost || ts.sys;
-        const { config, error } = ts.readConfigFile(options.tsConfig, configHost.readFile);
-        if (error) {
-            throw new Error(`Error while reading ${options.tsConfig}: ${error.messageText}`);
-        }
-
-        const parsed = ts.parseJsonConfigFileContent(config, configHost, options.rootDir || '');
-        if (parsed.errors.length) {
-            const errors = parsed.errors.map((e) => e.messageText).join(', ');
-            throw new Error(`Error while parsing ${options.tsConfig}: ${errors}`);
-        }
-
-        program = ts.createProgram(parsed.fileNames, parsed.options, options.tsCompilerHost);
-    }
+    const program: ts.Program | undefined = getProgram(options);
     for (const entry of typeInfo) {
         const file = entry[0];
         if (!files[file]) {

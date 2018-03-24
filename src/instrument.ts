@@ -1,14 +1,18 @@
 import * as ts from 'typescript';
 
+import { getProgram, ICompilerOptions } from './compiler-helper';
 import { applyReplacements, Replacement } from './replacement';
 
-export interface IInstrumentOptions {
+export interface IInstrumentOptions extends ICompilerOptions {
     instrumentCallExpressions: boolean;
+    instrumentImplicitThis: boolean;
 }
 
 export interface IExtraOptions {
     arrow?: boolean;
     parens?: [number, number];
+    thisType?: boolean;
+    comma?: boolean;
 }
 
 function hasParensAroundArguments(node: ts.FunctionLike) {
@@ -25,9 +29,64 @@ function hasParensAroundArguments(node: ts.FunctionLike) {
     }
 }
 
-function visit(node: ts.Node, replacements: Replacement[], fileName: string, options: IInstrumentOptions) {
+function visit(
+    node: ts.Node,
+    replacements: Replacement[],
+    fileName: string,
+    options: IInstrumentOptions,
+    program?: ts.Program,
+    semanticDiagnostics?: ReadonlyArray<ts.Diagnostic>,
+) {
     const isArrow = ts.isArrowFunction(node);
     if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
+        if (node.body) {
+            const needsThisInstrumentation =
+                options.instrumentImplicitThis &&
+                program &&
+                semanticDiagnostics &&
+                semanticDiagnostics.find((diagnostic) => {
+                    if (
+                        diagnostic.code === 2683 &&
+                        diagnostic.file &&
+                        diagnostic.file.fileName === node.getSourceFile().fileName &&
+                        diagnostic.start
+                    ) {
+                        if (node.body && ts.isBlock(node.body)) {
+                            const body = node.body as ts.FunctionBody;
+                            return (
+                                body.statements.find((statement) => {
+                                    return (
+                                        diagnostic.start !== undefined &&
+                                        statement.pos <= diagnostic.start &&
+                                        diagnostic.start <= statement.end
+                                    );
+                                }) !== undefined
+                            );
+                        } else {
+                            const body = node.body as ts.Expression;
+                            return body.pos <= diagnostic.start && diagnostic.start <= body.end;
+                        }
+                    }
+                    return false;
+                }) !== undefined;
+            if (needsThisInstrumentation) {
+                const opts: IExtraOptions = { thisType: true };
+                if (node.parameters.length > 0) {
+                    opts.comma = true;
+                }
+                const params = [
+                    JSON.stringify('this'),
+                    'this',
+                    node.parameters.pos,
+                    JSON.stringify(fileName),
+                    JSON.stringify(opts),
+                ];
+                const instrumentExpr = `$_$twiz(${params.join(',')})`;
+
+                replacements.push(Replacement.insert(node.body.getStart() + 1, `${instrumentExpr};`));
+            }
+        }
+
         const isShortArrow = ts.isArrowFunction(node) && !ts.isBlock(node.body);
         for (const param of node.parameters) {
             if (!param.type && !param.initializer && node.body) {
@@ -105,7 +164,7 @@ function visit(node: ts.Node, replacements: Replacement[], fileName: string, opt
         }
     }
 
-    node.forEachChild((child) => visit(child, replacements, fileName, options));
+    node.forEachChild((child) => visit(child, replacements, fileName, options, program, semanticDiagnostics));
 }
 
 const declaration = `
@@ -118,11 +177,18 @@ const declaration = `
 export function instrument(source: string, fileName: string, options?: IInstrumentOptions) {
     const instrumentOptions: IInstrumentOptions = {
         instrumentCallExpressions: false,
+        instrumentImplicitThis: false,
         ...options,
     };
-    const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
+    const program: ts.Program | undefined = getProgram(instrumentOptions);
+    const sourceFile = program
+        ? program.getSourceFile(fileName)
+        : ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
     const replacements = [] as Replacement[];
-    visit(sourceFile, replacements, fileName, instrumentOptions);
+    if (sourceFile) {
+        const semanticDiagnostics = program ? program.getSemanticDiagnostics(sourceFile) : undefined;
+        visit(sourceFile, replacements, fileName, instrumentOptions, program, semanticDiagnostics);
+    }
     if (replacements.length) {
         replacements.push(Replacement.insert(0, declaration));
     }
