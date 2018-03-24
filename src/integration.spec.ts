@@ -411,6 +411,22 @@ describe('class fields', () => {
     });
 });
 
+describe('object types', () => {
+    it('should infer parameters whose types are objects', () => {
+        const input = `
+            function foo(obj) { return obj; }
+
+            foo({hello: 'world', 'foo-bar': 42});
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            function foo(obj: { hello: string, "foo-bar": number }) { return obj; }
+
+            foo({hello: 'world', 'foo-bar': 42});
+        `);
+    });
+});
+
 describe('apply-types options', () => {
     describe('prefix', () => {
         it('should add the given prefix in front of the detected types', () => {
