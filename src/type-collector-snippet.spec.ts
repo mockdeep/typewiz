@@ -162,6 +162,9 @@ describe('type-collector', () => {
                     '{ foo: string[], bar: Array<number|string> }',
                 );
             });
+            it('should work with special characters in property names', () => {
+                expect($_$twiz.typeName({ 'foo-bar': 42 })).toBe('{ "foo-bar": number }');
+            });
             it('should throw on circular references', () => {
                 const x = {} as any;
                 x.foo = x;

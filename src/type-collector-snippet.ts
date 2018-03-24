@@ -89,10 +89,17 @@ function getObjectTypes(obj: any, nest: number): string {
     if (keys.length === 0) {
         return '{}';
     }
-    const keyValuePairs = keys.map((key) => `${key}: ${getTypeName(obj[key], nest + 1)}`);
+    const keyValuePairs = keys.map((key) => `${escapeSpecialKey(key)}: ${getTypeName(obj[key], nest + 1)}`);
     return `{ ${keyValuePairs.join(', ')} }`;
 }
 
+function escapeSpecialKey(key: string) {
+    const hasSpecialCharacters = !key.match(/^[a-z0-9_]+$/i);
+    if (hasSpecialCharacters) {
+        return JSON.stringify(key);
+    }
+    return key;
+}
 const logs: { [key: string]: Set<string> } = {};
 const trackedObjects = new WeakMap<object, ISourceLocation>();
 
