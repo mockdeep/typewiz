@@ -3,13 +3,8 @@ import * as path from 'path';
 import * as ts from 'typescript';
 
 import { getProgram, ICompilerOptions } from './compiler-helper';
-import { IExtraOptions } from './instrument';
 import { applyReplacements, Replacement } from './replacement';
-import { ISourceLocation } from './type-collector-snippet';
-
-export type ICollectedTypeInfo = Array<
-    [string, number, Array<[string | undefined, ISourceLocation | undefined]>, IExtraOptions]
->;
+import { ICollectedTypeInfo, ISourceLocation } from './type-collector-snippet';
 
 export interface IApplyTypesOptions extends ICompilerOptions {
     /**
@@ -62,6 +57,7 @@ export function applyTypesToFile(
             continue;
         }
 
+        let thisPrefix = '';
         let suffix = '';
         if (opts && opts.parens) {
             replacements.push(Replacement.insert(opts.parens[0], '('));
@@ -70,10 +66,10 @@ export function applyTypesToFile(
         if (opts && opts.comma) {
             suffix = ', ';
         }
-        replacements.push(Replacement.insert(pos, ': ' + prefix + sortedTypes.join('|') + suffix));
         if (opts && opts.thisType) {
-            replacements.push(Replacement.insert(pos, 'this'));
+            thisPrefix = 'this';
         }
+        replacements.push(Replacement.insert(pos, thisPrefix + ': ' + prefix + sortedTypes.join('|') + suffix));
     }
     return applyReplacements(source, replacements);
 }

@@ -128,7 +128,7 @@ describe('function parameters', () => {
         `);
     });
 
-    it('should not add `this` type', () => {
+    it('should not add `this` type when it can be inferred', () => {
         const input = `
             class Greeter {
                 text;

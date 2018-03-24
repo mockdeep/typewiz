@@ -1,8 +1,12 @@
-import { ICollectedTypeInfo } from './apply-types';
+import { IExtraOptions } from './instrument';
 
 class NestError extends Error {}
 
 export type ISourceLocation = [string, number]; /* filename, offset */
+
+export type ICollectedTypeInfo = Array<
+    [string, number, Array<[string | undefined, ISourceLocation | undefined]>, IExtraOptions]
+>;
 
 interface IKey {
     filename: string;
