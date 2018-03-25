@@ -74,12 +74,32 @@ export function getTypeName(value: any, nest = 0): string | null {
     }
     if (value.constructor && value.constructor.name) {
         const { name } = value.constructor;
-        return name === 'Object' ? 'object' : name;
+        if (name === 'Object') {
+            return getObjectTypes(value, nest);
+        } else {
+            return name;
+        }
     }
 
     return typeof value;
 }
 
+function getObjectTypes(obj: any, nest: number): string {
+    const keys = Object.keys(obj).sort();
+    if (keys.length === 0) {
+        return '{}';
+    }
+    const keyValuePairs = keys.map((key) => `${escapeSpecialKey(key)}: ${getTypeName(obj[key], nest + 1)}`);
+    return `{ ${keyValuePairs.join(', ')} }`;
+}
+
+function escapeSpecialKey(key: string) {
+    const hasSpecialCharacters = !key.match(/^[a-z0-9_]+$/i);
+    if (hasSpecialCharacters) {
+        return JSON.stringify(key);
+    }
+    return key;
+}
 const logs: { [key: string]: Set<string> } = {};
 const trackedObjects = new WeakMap<object, ISourceLocation>();
 

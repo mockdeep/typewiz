@@ -43,9 +43,6 @@ describe('type-collector', () => {
             expect($_$twiz.typeName([['foo'], [], ['bar', 'baz']])).toBe('string[][]');
         });
 
-        it('should return "object" for Objects', () => {
-            expect($_$twiz.typeName({})).toBe('object');
-        });
         it('should throw a NestError in case of array has includes itself', () => {
             const a: any[] = [];
             a.push(a);
@@ -136,6 +133,50 @@ describe('type-collector', () => {
             });
 
             /* tslint:enable:only-arrow-functions*/
+        });
+
+        describe('objects', () => {
+            it('should output nice empty object for empty objects', () => {
+                expect($_$twiz.typeName({})).toBe('{}');
+            });
+            it("should infer simple one-level objects' types", () => {
+                expect($_$twiz.typeName({ foo: 'hello', bar: 42, baz: true })).toBe(
+                    '{ bar: number, baz: boolean, foo: string }',
+                );
+            });
+            it('should return the same result for differently sorted keys', () => {
+                const input1 = { a: 'hello', b: 'world' };
+                const input2 = { b: 'hello', a: 'world' };
+
+                expect($_$twiz.typeName(input1)).toBe($_$twiz.typeName(input2));
+            });
+            it('should infer nested simple objects', () => {
+                expect($_$twiz.typeName({ foo: { bar: { baz: 'hello' } } })).toBe('{ foo: { bar: { baz: string } } }');
+            });
+            it('should work with functions', () => {
+                expect(
+                    $_$twiz.typeName({
+                        foo: () => 42,
+                        bar(param: boolean) {
+                            return 'hello';
+                        },
+                    }),
+                ).toBe('{ bar: (param: any) => any, foo: () => any }'); // Can't infer function types yet :(
+            });
+            it('should work with array values', () => {
+                expect($_$twiz.typeName({ foo: ['hello', 'world'], bar: ['hello', 42] })).toBe(
+                    '{ bar: Array<number|string>, foo: string[] }',
+                );
+            });
+            it('should work with special characters in property names', () => {
+                expect($_$twiz.typeName({ 'foo-bar': 42 })).toBe('{ "foo-bar": number }');
+            });
+            it('should throw on circular references', () => {
+                const x = {} as any;
+                x.foo = x;
+
+                expect(() => $_$twiz.typeName(x)).toThrowError('NestError');
+            });
         });
     });
 });
