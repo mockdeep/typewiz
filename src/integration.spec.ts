@@ -420,7 +420,7 @@ describe('object types', () => {
         `;
 
         expect(typeWiz(input)).toBe(`
-            function foo(obj: { hello: string, "foo-bar": number }) { return obj; }
+            function foo(obj: { "foo-bar": number, hello: string }) { return obj; }
 
             foo({hello: 'world', 'foo-bar': 42});
         `);

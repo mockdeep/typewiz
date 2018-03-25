@@ -141,8 +141,14 @@ describe('type-collector', () => {
             });
             it("should infer simple one-level objects' types", () => {
                 expect($_$twiz.typeName({ foo: 'hello', bar: 42, baz: true })).toBe(
-                    '{ foo: string, bar: number, baz: boolean }',
+                    '{ bar: number, baz: boolean, foo: string }',
                 );
+            });
+            it('should return the same result for differently sorted keys', () => {
+                const input1 = { a: 'hello', b: 'world' };
+                const input2 = { b: 'hello', a: 'world' };
+
+                expect($_$twiz.typeName(input1)).toBe($_$twiz.typeName(input2));
             });
             it('should infer nested simple objects', () => {
                 expect($_$twiz.typeName({ foo: { bar: { baz: 'hello' } } })).toBe('{ foo: { bar: { baz: string } } }');
@@ -155,11 +161,11 @@ describe('type-collector', () => {
                             return 'hello';
                         },
                     }),
-                ).toBe('{ foo: () => any, bar: (param: any) => any }'); // Can't infer function types yet :(
+                ).toBe('{ bar: (param: any) => any, foo: () => any }'); // Can't infer function types yet :(
             });
             it('should work with array values', () => {
                 expect($_$twiz.typeName({ foo: ['hello', 'world'], bar: ['hello', 42] })).toBe(
-                    '{ foo: string[], bar: Array<number|string> }',
+                    '{ bar: Array<number|string>, foo: string[] }',
                 );
             });
             it('should work with special characters in property names', () => {

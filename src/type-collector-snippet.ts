@@ -85,7 +85,7 @@ export function getTypeName(value: any, nest = 0): string | null {
 }
 
 function getObjectTypes(obj: any, nest: number): string {
-    const keys = Object.keys(obj);
+    const keys = Object.keys(obj).sort();
     if (keys.length === 0) {
         return '{}';
     }
