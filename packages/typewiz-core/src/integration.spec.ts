@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as ts from 'typescript';
 import * as vm from 'vm';
 
-import { transpileSource, virtualCompilerHost } from './test-utils/transpile';
+import { transpileSource, virtualCompilerHost, virtualTsConfigHost } from './test-utils/transpile';
 
 const mockFs = {
     readFile: jest.fn(fs.readFile),
@@ -17,26 +17,13 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     // setup options to allow using the TypeChecker
     if (options && options.tsConfig) {
         options.tsCompilerHost = virtualCompilerHost(input, 'c:/test.ts');
-        options.tsConfigHost = {
-            fileExists: ts.sys.fileExists,
-
-            // readDirectory will be called by applyTypes to get the names of files included in
-            // the typescript project. We return a mock value with our test script path.
-            readDirectory: () => ['c:/test.ts'],
-
-            // readFile will be called to read the compiler options from tsconfig.json, so we mock
-            // it to return a basic configuration that will be used during the integration tests
-            readFile: jest.fn(() =>
-                JSON.stringify({
-                    compilerOptions: {
-                        noImplicitThis: true,
-                        target: 'es2015',
-                    },
-                    include: ['test.ts'],
-                }),
-            ),
-            useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
-        };
+        options.tsConfigHost = virtualTsConfigHost({
+            compilerOptions: {
+                noImplicitThis: true,
+                target: 'es2015',
+            },
+            include: ['test.ts'],
+        });
     }
 
     // Step 1: instrument the source
