@@ -10,7 +10,7 @@ const mockFs = {
 };
 jest.doMock('fs', () => mockFs);
 
-import { applyTypes, getTypeCollectorSnippet, IApplyTypesOptions, instrument } from './index';
+import { applyTypes, getTypeCollectorSnippet, IApplyTypesOptions, IInstrumentOptions, instrument } from './index';
 
 function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions) {
     // setup options to allow using the TypeChecker
@@ -43,7 +43,7 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
         instrumentCallExpressions: true,
         instrumentImplicitThis: true,
         ...options,
-    });
+    } as IInstrumentOptions);
 
     // Step 2: compile + add the type collector
     const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
