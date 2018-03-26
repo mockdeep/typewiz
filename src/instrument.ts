@@ -4,8 +4,8 @@ import { getProgram, ICompilerOptions } from './compiler-helper';
 import { applyReplacements, Replacement } from './replacement';
 
 export interface IInstrumentOptions extends ICompilerOptions {
-    instrumentCallExpressions: boolean;
-    instrumentImplicitThis: boolean;
+    instrumentCallExpressions?: boolean;
+    instrumentImplicitThis?: boolean;
 }
 
 export interface IExtraOptions {
