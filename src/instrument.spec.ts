@@ -27,4 +27,46 @@ describe('instrument', () => {
         const input = `function (a = 12) { return a; }`;
         expect(instrument(input, 'test.ts')).toMatch(`function (a = 12) { return a; }`);
     });
+
+    describe('instrumentCallExpressions', () => {
+        it('should instrument function calls', () => {
+            const input = `foo(bar)`;
+            expect(
+                instrument(input, 'test.ts', {
+                    instrumentCallExpressions: true,
+                    skipTwizDeclarations: true,
+                }),
+            ).toMatch(`foo($_$twiz.track(bar,"test.ts",4))`);
+        });
+
+        it('should not instrument numeric arguments in function calls', () => {
+            const input = `foo(5)`;
+            expect(
+                instrument(input, 'test.ts', {
+                    instrumentCallExpressions: true,
+                    skipTwizDeclarations: true,
+                }),
+            ).toMatch(`foo(5)`);
+        });
+
+        it('should not instrument string arguments in function calls', () => {
+            const input = `foo('bar')`;
+            expect(
+                instrument(input, 'test.ts', {
+                    instrumentCallExpressions: true,
+                    skipTwizDeclarations: true,
+                }),
+            ).toMatch(`foo('bar')`);
+        });
+
+        it('should not instrument a spread argument in function call', () => {
+            const input = `foo(...bar)`;
+            expect(
+                instrument(input, 'test.ts', {
+                    instrumentCallExpressions: true,
+                    skipTwizDeclarations: true,
+                }),
+            ).toMatch(`foo(...bar)`);
+        });
+    });
 });

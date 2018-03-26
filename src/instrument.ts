@@ -6,6 +6,7 @@ import { applyReplacements, Replacement } from './replacement';
 export interface IInstrumentOptions extends ICompilerOptions {
     instrumentCallExpressions?: boolean;
     instrumentImplicitThis?: boolean;
+    skipTwizDeclarations?: boolean;
 }
 
 export interface IExtraOptions {
@@ -122,7 +123,7 @@ function visit(
         node.expression.getText() !== 'require.context'
     ) {
         for (const arg of node.arguments) {
-            if (!ts.isStringLiteral(arg) && !ts.isNumericLiteral(arg)) {
+            if (!ts.isStringLiteral(arg) && !ts.isNumericLiteral(arg) && !ts.isSpreadElement(arg)) {
                 replacements.push(Replacement.insert(arg.getStart(), '$_$twiz.track('));
                 replacements.push(Replacement.insert(arg.getEnd(), `,${JSON.stringify(fileName)},${arg.getStart()})`));
             }
@@ -179,6 +180,7 @@ export function instrument(source: string, fileName: string, options?: IInstrume
     const instrumentOptions: IInstrumentOptions = {
         instrumentCallExpressions: false,
         instrumentImplicitThis: false,
+        skipTwizDeclarations: false,
         ...options,
     };
     const program: ts.Program | undefined = getProgram(instrumentOptions);
@@ -190,7 +192,7 @@ export function instrument(source: string, fileName: string, options?: IInstrume
         const semanticDiagnostics = program ? program.getSemanticDiagnostics(sourceFile) : undefined;
         visit(sourceFile, replacements, fileName, instrumentOptions, program, semanticDiagnostics);
     }
-    if (replacements.length) {
+    if (replacements.length && !instrumentOptions.skipTwizDeclarations) {
         replacements.push(Replacement.insert(0, declaration));
     }
     return applyReplacements(source, replacements);
