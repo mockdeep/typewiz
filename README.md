@@ -48,6 +48,17 @@ or
 
     npm install --save-dev typewiz
 
+## Configuration options
+
+TypeWiz functions accepts several configuration options which enable specific features:
+
+* `tsConfig: string` (default: undefined) - The path to your project's tsconfig.json file. 
+    This is required for several other options, such as when instrumenting implicit this.
+* `instrumentCallExpressions: boolean` (default: false) - Try to find even more types by combining static analysis with
+    the runtime analysis. TypeWiz will try to use TypeScript's inferred types when determining the type of a function argument. See [#27](https://github.com/urish/typewiz/pull/27) for an example.
+* `instrumentImplicitThis: boolean` (default: false) - Find type of `this` in non-class member functions. See [#33](https://github.com/urish/typewiz/issues/33) for discussion.
+* `prefix: string` (default: '') - A prefix to add before each type added by `applyTypes()`. See [#11](https://github.com/urish/typewiz/issues/11).
+
 ## License
 
 Copyright (C) 2018, Uri Shaked. Licensed under the MIT license.
