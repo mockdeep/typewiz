@@ -29,7 +29,7 @@ function findType(program?: ts.Program, typeName?: string, sourcePos?: ISourceLo
         }
         const sourceFile = program.getSourceFile(sourceName);
         visit(sourceFile);
-        if (foundType) {
+        if (foundType && foundType !== 'any') {
             return foundType;
         }
     }

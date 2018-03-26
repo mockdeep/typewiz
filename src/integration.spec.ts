@@ -325,6 +325,26 @@ describe('function parameters', () => {
             f(promise);
         `);
     });
+
+    it('should not add `any` type if this was the inferred type for an argument', () => {
+        const input = `
+            function f(a) {
+                return a;
+            }
+
+            let val: any = {};
+            f(val);
+        `;
+
+        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+            function f(a: {}) {
+                return a;
+            }
+
+            let val: any = {};
+            f(val);
+        `);
+    });
 });
 
 describe('class fields', () => {
