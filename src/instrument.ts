@@ -170,7 +170,8 @@ function visit(
 const declaration = `
     declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;
     declare namespace $_$twiz {
-        function track<T>(v: T, p: number, f: string): T;
+        function track<T>(value: T, filename: string, offset: number): T;
+        function track(value: any, filename: string, offset: number): any;
     }
 `;
 

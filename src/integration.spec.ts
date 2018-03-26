@@ -316,7 +316,7 @@ describe('function parameters', () => {
             f(promise);
         `;
 
-        expect(typeWiz(input, false, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
             function f(a: Promise<number>) {
                 return a;
             }
