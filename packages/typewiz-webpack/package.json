@@ -1,6 +1,6 @@
 {
   "name": "typewiz-webpack",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": "https://github.com/urish/typewiz",
@@ -15,7 +15,7 @@
     "node": ">= 6.4.0"
   },
   "dependencies": {
-    "typewiz": "^0.5.0",
+    "typewiz": "^0.7.0",
     "webpack-sources": "^1.1.0"
   },
   "devDependencies": {
