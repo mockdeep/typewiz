@@ -116,6 +116,7 @@ export function $_$twiz(name: string, value: any, pos: number, filename: string,
     } catch (e) {
         if (e instanceof NestError) {
             // simply ignore the type
+            return;
         }
         throw e;
     }

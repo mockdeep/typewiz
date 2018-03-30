@@ -445,6 +445,18 @@ describe('object types', () => {
             foo({hello: 'world', 'foo-bar': 42});
         `);
     });
+
+    it('should not fail when given an object with a circular references', () => {
+        const input = `
+            let a = {};
+            a.a = a;
+            function foo(obj) { return obj; }
+
+            foo(a);
+        `;
+
+        expect(typeWiz(input)).toBe(null); // null means we haven't updated the input file
+    });
 });
 
 describe('apply-types options', () => {
