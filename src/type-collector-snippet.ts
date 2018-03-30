@@ -4,9 +4,14 @@ class NestError extends Error {}
 
 export type ISourceLocation = [string, number]; /* filename, offset */
 
-export type ICollectedTypeInfo = Array<
-    [string, number, Array<[string | undefined, ISourceLocation | undefined]>, IExtraOptions]
->;
+export type ICollectedTypeEntry = [
+    string,
+    number,
+    Array<[string | undefined, ISourceLocation | undefined]>,
+    IExtraOptions
+];
+
+export type ICollectedTypeInfo = ICollectedTypeEntry[];
 
 interface IKey {
     filename: string;
@@ -129,7 +134,7 @@ export namespace $_$twiz {
         return Object.keys(logs).map((key) => {
             const { filename, pos, opts } = JSON.parse(key) as IKey;
             const typeOptions = Array.from(logs[key]).map((v) => JSON.parse(v));
-            return [filename, pos, typeOptions, opts] as [string, number, string[], any];
+            return [filename, pos, typeOptions, opts] as ICollectedTypeEntry;
         });
     };
     export const track = (value: any, filename: string, offset: number) => {
