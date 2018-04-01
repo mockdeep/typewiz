@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Typewiz configuration schema",
+    "type": "object",
+    "properties": {
+        "common": {
+            "type": "object",
+            "properties": {
+                "rootDir": {
+                    "type": "string",
+                    "description":
+                        "If given, all the file paths in the collected type info will be resolved relative to this directory."
+                },
+                "tsConfig": {
+                    "type": "string",
+                    "description": "Path to your project's tsconfig file."
+                }
+            }
+        },
+        "instrument": {
+            "type": "object",
+            "properties": {
+                "instrumentCallExpressions": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "instrumentImplicitThis": {
+                    "type": "boolean",
+                    "description": "Requires common.tsConfig to be set",
+                    "default": false
+                },
+                "skipTwizDeclarations": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "applyTypes": {
+            "type": "object",
+            "properties": {
+                "prefix": {
+                    "type": "string",
+                    "description":
+                        "A prefix that will be added in front of each type applied. You can use a javascript comment to mark the automatically added types. The prefix will be added after the colon character, just before the actual type."
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}
