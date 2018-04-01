@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts dist",
     "lint": "tslint -p .",
-    "prepublish": "npm run build"
+    "prepublish": "yarn build"
   },
   "files": ["dist"],
   "dependencies": {

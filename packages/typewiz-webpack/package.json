@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "lint": "tslint -p .",
-    "prepublish": "npm run build"
+    "prepublish": "yarn build"
   },
   "files": ["dist"],
   "engines": {
