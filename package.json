@@ -28,7 +28,8 @@
     "typescript": "^2.8.1"
   },
   "engines": {
-    "node": ">= 6.4.0"
+    "node": ">= 6.4.0",
+    "yarn": ">= 1.3.2"
   },
   "jest": {
     "projects": ["<rootDir>/packages/*"]
