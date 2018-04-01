@@ -16,11 +16,9 @@ jest.doMock('fs', () => mockFs);
 import { ConfigurationParser } from './configuration-parser';
 
 describe('ConfigurationParser', () => {
-    it('should throw an error if given non-existing typewiz.json file', () => {
-        expect(() => {
-            const configParser = new ConfigurationParser();
-            configParser.parse('not-found-file.json');
-        }).toThrowError(`Could not find configuration file 'not-found-file.json'`);
+    it('should handle a non-existing typewiz.json file by using an empty default config', () => {
+        const configParser = new ConfigurationParser();
+        configParser.parse('not-found-file.json');
     });
 
     it('should throw an error if given bad typewiz.json file', () => {

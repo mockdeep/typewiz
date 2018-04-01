@@ -12,7 +12,7 @@ export class ConfigurationParser {
         try {
             typewizConfigString = fs.readFileSync(path.resolve(configurationPath), { encoding: 'utf8' });
         } catch (error) {
-            throw new Error("Could not find configuration file '" + configurationPath + "'");
+            typewizConfigString = '{}';
         }
 
         let typewizConfig;
