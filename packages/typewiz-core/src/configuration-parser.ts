@@ -2,12 +2,12 @@ import * as Ajv from 'ajv';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+const readFileAsync = util.promisify(fs.readFile);
 
 export class ConfigurationParser {
     private typewizConfig: any;
 
     public async parse(configurationPath: string): Promise<void> {
-        const readFileAsync = util.promisify(fs.readFile);
         const typewizConfigSchema = JSON.parse(await readFileAsync('src/typewiz.json', { encoding: 'utf8' }));
 
         let typewizConfigString;
