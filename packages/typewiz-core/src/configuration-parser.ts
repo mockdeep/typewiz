@@ -2,6 +2,9 @@ import * as Ajv from 'ajv';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+import { IApplyTypesOptions } from './apply-types';
+import { ICompilerOptions } from './compiler-helper';
+import { IInstrumentOptions } from './instrument';
 const readFileAsync = util.promisify(fs.readFile);
 
 export class ConfigurationParser {
@@ -30,5 +33,17 @@ export class ConfigurationParser {
             throw new Error(ajv.errorsText(ajv.errors, { dataVar: 'typewiz.json' }));
         }
         this.typewizConfig = typewizConfig;
+    }
+
+    public getCompilerOptions(): ICompilerOptions {
+        return { ...this.typewizConfig.common };
+    }
+
+    public getInstrumentOptions(): IInstrumentOptions {
+        return { ...this.getCompilerOptions(), ...this.typewizConfig.instrument };
+    }
+
+    public getApplyTypesOptions(): IApplyTypesOptions {
+        return { ...this.getCompilerOptions(), ...this.typewizConfig.applyTypes };
     }
 }

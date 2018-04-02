@@ -68,7 +68,8 @@ describe('ConfigurationParser', () => {
                         },
                         "instrument": {
                             "instrumentCallExpressions": true,
-                            "instrumentImplicitThis": true
+                            "instrumentImplicitThis": true,
+                            "skipTwizDeclarations": true
                         },
                         "applyTypes": {
                             "prefix": "TypeWiz |"
@@ -77,5 +78,119 @@ describe('ConfigurationParser', () => {
                     `;
         const configParser = new ConfigurationParser();
         await configParser.parse('test/typewiz.json');
+    });
+
+    it('should return an ICompilerConfig if no configuration is specified', async () => {
+        await expect(
+            (async () => {
+                typewizConfig = `
+                    {
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                await configParser.parse('test/typewiz.json');
+                return configParser.getCompilerOptions();
+            })(),
+        ).resolves.toEqual({});
+    });
+
+    it('should return an ICompilerConfig if a configuration is specified', async () => {
+        await expect(
+            (async () => {
+                typewizConfig = `
+                    {
+                        "common": {
+                            "rootDir": "...",
+                            "tsConfig": "..."
+                        }
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                await configParser.parse('test/typewiz.json');
+                return configParser.getCompilerOptions();
+            })(),
+        ).resolves.toEqual({ rootDir: '...', tsConfig: '...' });
+    });
+
+    it('should return IInstrumentOptions if no configuration is specified', async () => {
+        await expect(
+            (async () => {
+                typewizConfig = `
+                    {
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                await configParser.parse('test/typewiz.json');
+                return configParser.getInstrumentOptions();
+            })(),
+        ).resolves.toEqual({});
+    });
+
+    it('should return IInstrumentOptions if a configuration is specified', async () => {
+        await expect(
+            (async () => {
+                typewizConfig = `
+                    {
+                        "common": {
+                            "rootDir": "...",
+                            "tsConfig": "..."
+                        },
+                        "instrument": {
+                            "instrumentCallExpressions": true,
+                            "instrumentImplicitThis": true,
+                            "skipTwizDeclarations": true
+                        }
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                await configParser.parse('test/typewiz.json');
+                return configParser.getInstrumentOptions();
+            })(),
+        ).resolves.toEqual({
+            instrumentCallExpressions: true,
+            instrumentImplicitThis: true,
+            rootDir: '...',
+            skipTwizDeclarations: true,
+            tsConfig: '...',
+        });
+    });
+
+    it('should return IApplyTypesOptions if no configuration is specified', async () => {
+        await expect(
+            (async () => {
+                typewizConfig = `
+                    {
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                await configParser.parse('test/typewiz.json');
+                return configParser.getApplyTypesOptions();
+            })(),
+        ).resolves.toEqual({});
+    });
+
+    it('should return IApplyTypesOptions if a configuration is specified', async () => {
+        await expect(
+            (async () => {
+                typewizConfig = `
+                    {
+                        "common": {
+                            "rootDir": "...",
+                            "tsConfig": "..."
+                        },
+                        "applyTypes": {
+                            "prefix": "TypeWiz |"
+                        }
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                await configParser.parse('test/typewiz.json');
+                return configParser.getApplyTypesOptions();
+            })(),
+        ).resolves.toEqual({
+            prefix: 'TypeWiz |',
+            rootDir: '...',
+            tsConfig: '...',
+        });
     });
 });
