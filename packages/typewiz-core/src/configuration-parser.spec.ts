@@ -3,35 +3,40 @@ import * as path from 'path';
 
 let typewizConfig = '';
 const mockFs = {
-    readFileSync: jest.fn((filePath: string, options?: any) => {
-        if (filePath === 'src/typewiz.json' || filePath === path.resolve('not-found-file.json')) {
-            return fs.readFileSync(filePath, options);
-        } else {
-            return typewizConfig;
-        }
-    }),
+    readFile: jest.fn(
+        (filePath: string, options: any, callback: (err: NodeJS.ErrnoException, data: string) => void) => {
+            if (filePath === 'src/typewiz.json' || filePath === path.resolve('not-found-file.json')) {
+                fs.readFile(filePath, options, callback);
+            } else {
+                callback(null, typewizConfig);
+            }
+        },
+    ),
 };
 jest.doMock('fs', () => mockFs);
 
 import { ConfigurationParser } from './configuration-parser';
 
 describe('ConfigurationParser', () => {
-    it('should handle a non-existing typewiz.json file by using an empty default config', () => {
+    it('should handle a non-existing typewiz.json file by using an empty default config', async () => {
         const configParser = new ConfigurationParser();
-        configParser.parse('not-found-file.json');
+        await configParser.parse('not-found-file.json');
     });
 
-    it('should throw an error if given bad typewiz.json file', () => {
-        expect(() => {
-            typewizConfig = '<invalid json>';
-            const configParser = new ConfigurationParser();
-            configParser.parse('test/typewiz.json');
-        }).toThrowError(`Could not parser configuration file: Unexpected token < in JSON at position 0`);
+    it('should throw an error if given bad typewiz.json file', async () => {
+        await expect(
+            (() => {
+                typewizConfig = '<invalid json>';
+                const configParser = new ConfigurationParser();
+                return configParser.parse('test/typewiz.json');
+            })(),
+        ).rejects.toThrow(`Could not parser configuration file: Unexpected token < in JSON at position 0`);
     });
 
-    it('should throw an error if given a typewiz.json file with invalid properties', () => {
-        expect(() => {
-            typewizConfig = `
+    it('should throw an error if given a typewiz.json file with invalid properties', async () => {
+        await expect(
+            (() => {
+                typewizConfig = `
                     {
                         "commond": {
                             "rootDir": "...",
@@ -39,21 +44,22 @@ describe('ConfigurationParser', () => {
                         }
                     }
                     `;
-            const configParser = new ConfigurationParser();
-            configParser.parse('test/typewiz.json');
-        }).toThrowError(`typewiz.json should NOT have additional properties`);
+                const configParser = new ConfigurationParser();
+                return configParser.parse('test/typewiz.json');
+            })(),
+        ).rejects.toThrow(`typewiz.json should NOT have additional properties`);
     });
 
-    it('should parse a valid typewiz.json file with no options set', () => {
+    it('should parse a valid typewiz.json file with no options set', async () => {
         typewizConfig = `
                     {
                     }
                     `;
         const configParser = new ConfigurationParser();
-        configParser.parse('test/typewiz.json');
+        await configParser.parse('test/typewiz.json');
     });
 
-    it('should parse a valid typewiz.json file with all options set', () => {
+    it('should parse a valid typewiz.json file with all options set', async () => {
         typewizConfig = `
                     {
                         "common": {
@@ -70,6 +76,6 @@ describe('ConfigurationParser', () => {
                     }
                     `;
         const configParser = new ConfigurationParser();
-        configParser.parse('test/typewiz.json');
+        await configParser.parse('test/typewiz.json');
     });
 });

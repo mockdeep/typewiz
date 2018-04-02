@@ -1,16 +1,18 @@
 import * as Ajv from 'ajv';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as util from 'util';
 
 export class ConfigurationParser {
     private typewizConfig: any;
 
-    public parse(configurationPath: string) {
-        const typewizConfigSchema = JSON.parse(fs.readFileSync('src/typewiz.json', { encoding: 'utf8' }));
+    public async parse(configurationPath: string): Promise<void> {
+        const readFileAsync = util.promisify(fs.readFile);
+        const typewizConfigSchema = JSON.parse(await readFileAsync('src/typewiz.json', { encoding: 'utf8' }));
 
         let typewizConfigString;
         try {
-            typewizConfigString = fs.readFileSync(path.resolve(configurationPath), { encoding: 'utf8' });
+            typewizConfigString = await readFileAsync(path.resolve(configurationPath), { encoding: 'utf8' });
         } catch (error) {
             typewizConfigString = '{}';
         }
