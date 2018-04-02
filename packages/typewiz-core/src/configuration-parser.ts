@@ -11,7 +11,9 @@ export class ConfigurationParser {
     private typewizConfig: any;
 
     public async parse(configurationPath: string): Promise<void> {
-        const typewizConfigSchema = JSON.parse(await readFileAsync('src/typewiz.json', { encoding: 'utf8' }));
+        const typewizConfigSchema = JSON.parse(
+            await readFileAsync(path.join(__dirname, 'typewiz.json'), { encoding: 'utf8' }),
+        );
 
         let typewizConfigString;
         try {
