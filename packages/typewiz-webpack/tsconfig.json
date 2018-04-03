@@ -1,22 +1,8 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "strictNullChecks": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "declaration": true,
-    "noEmitOnError": true,
-    "noUnusedLocals": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "noFallthroughCasesInSwitch": true,
-    "rootDir": "src",
-    "outDir": "dist",
-    "lib": ["es5", "es2015.core", "es2015.promise", "es2015.collection", "es2015.iterable"]
-  },
-  "include": [
-    "src/**/*.ts"
-  ]
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist"
+    },
+    "include": ["src/**/*.ts"]
 }

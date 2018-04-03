@@ -20,11 +20,11 @@ Please create a test case for any feature you add or bug you fix. The [integrati
 
 To run the tests (and linting) execute:
 
-    npm test
+    yarn test
     
 The code is formatted using prettier. You can (and should) format your code before committing by running:
 
-    npm run format
+    yarn format
     
 The project provides [Wallaby.js](https://wallabyjs.com/) configuration, you can use it to automatically run the tests in your IDE as you edit the code.
 
