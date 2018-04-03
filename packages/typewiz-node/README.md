@@ -15,7 +15,7 @@ or
 
 ## Usage
 
-    typewiz-node <main.ts>
+    typewiz-node </path/to/typewiz.json> <main.ts>
 
 If you want to enable typewiz for your mocha test, simply add `-r typewiz-node/dist/register` to your mocha command-line, e.g.:
 
