@@ -5,7 +5,10 @@ let typewizConfig = '';
 const mockFs = {
     readFile: jest.fn(
         (filePath: string, options: any, callback: (err: NodeJS.ErrnoException, data: string) => void) => {
-            if (filePath === path.resolve('src', 'typewiz.json') || filePath === path.resolve('not-found-file.json')) {
+            if (
+                filePath === path.resolve('packages', 'typewiz-core', 'src', 'typewiz.json') ||
+                filePath === path.resolve('not-found-file.json')
+            ) {
                 fs.readFile(filePath, options, callback);
             } else {
                 callback(null, typewizConfig);

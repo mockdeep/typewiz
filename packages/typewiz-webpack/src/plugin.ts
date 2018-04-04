@@ -1,4 +1,4 @@
-import { getTypeCollectorSnippet } from 'typewiz';
+import { getTypeCollectorSnippet } from 'typewiz-core';
 import { Compiler } from 'webpack';
 import { ConcatSource } from 'webpack-sources';
 
