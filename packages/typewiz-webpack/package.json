@@ -18,6 +18,7 @@
   "dependencies": {
     "loader-utils": "^1.1.0",
     "typewiz-core": "^0.7.0",
+    "util.promisify": "^1.0.0",
     "webpack-sources": "^1.1.0"
   },
   "devDependencies": {

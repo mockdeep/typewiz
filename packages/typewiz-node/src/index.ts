@@ -1,3 +1,4 @@
+require('util.promisify/shim')(); // tslint:disable-line:no-var-requires
 import * as path from 'path';
 import * as tsnode from 'ts-node';
 import * as typewiz from 'typewiz-core';
