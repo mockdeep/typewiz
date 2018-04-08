@@ -9,14 +9,15 @@ let configurationParser: ConfigurationParser;
 export async function typewizLoader(this: loader.LoaderContext, source: string | undefined) {
     const callback = this.async();
 
-    const typewizConfigPath = path.resolve(getOptions(this).typewizConfig || 'typewiz.json');
-    this.addDependency(typewizConfigPath);
-
     if (promise) {
         await promise;
     }
     if (!configurationParser) {
         configurationParser = new ConfigurationParser();
+        const typewizConfigPath =
+            getOptions(this) && getOptions(this).typewizConfig
+                ? path.resolve(getOptions(this).typewizConfig)
+                : configurationParser.findConfigFile(process.cwd());
         promise = configurationParser.parse(typewizConfigPath);
         await promise;
     }

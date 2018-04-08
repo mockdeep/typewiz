@@ -1,6 +1,7 @@
 import * as Ajv from 'ajv';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as ts from 'typescript';
 import * as util from 'util';
 import { IApplyTypesOptions } from './apply-types';
 import { ICompilerOptions } from './compiler-helper';
@@ -9,6 +10,10 @@ const readFileAsync = util.promisify(fs.readFile);
 
 export class ConfigurationParser {
     private typewizConfig: any;
+
+    public findConfigFile(cwd: string): string {
+        return ts.findConfigFile(cwd, ts.sys.fileExists, 'typewiz.json');
+    }
 
     public async parse(configurationPath: string): Promise<void> {
         const typewizConfigSchema = JSON.parse(

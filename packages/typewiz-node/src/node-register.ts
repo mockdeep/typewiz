@@ -1,15 +1,14 @@
-import * as path from 'path';
 import { ConfigurationParser, instrument } from 'typewiz-core';
 import { $_$twiz } from 'typewiz-core/dist/type-collector-snippet';
 
 type ICompileFunction = (source: string, filename: string) => void;
 
 export interface IRegisterOptions {
-    typewizConfig?: string;
+    typewizConfig: string;
     extensions?: string[];
 }
 
-export async function register(options?: IRegisterOptions) {
+export async function register(options: IRegisterOptions) {
     options = Object.assign(
         {
             extensions: ['.ts', '.tsx'],
@@ -18,10 +17,8 @@ export async function register(options?: IRegisterOptions) {
         options,
     );
 
-    const typewizConfigPath = path.resolve(options.typewizConfig!);
-
     const configurationParser = new ConfigurationParser();
-    await configurationParser.parse(typewizConfigPath);
+    await configurationParser.parse(options.typewizConfig);
 
     (global as any).$_$twiz = $_$twiz;
 
