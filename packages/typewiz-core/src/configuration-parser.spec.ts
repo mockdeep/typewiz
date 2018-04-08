@@ -42,8 +42,8 @@ describe('ConfigurationParser', () => {
                 typewizConfig = `
                     {
                         "commond": {
-                            "rootDir": "...",
-                            "tsConfig": "..."
+                            "rootDir": ".",
+                            "tsConfig": "./tsconfig.json"
                         }
                     }
                     `;
@@ -66,8 +66,8 @@ describe('ConfigurationParser', () => {
         typewizConfig = `
                     {
                         "common": {
-                            "rootDir": "...",
-                            "tsConfig": "..."
+                            "rootDir": ".",
+                            "tsConfig": "./tsconfig.json"
                         },
                         "instrument": {
                             "instrumentCallExpressions": true,
@@ -103,8 +103,8 @@ describe('ConfigurationParser', () => {
                 typewizConfig = `
                     {
                         "common": {
-                            "rootDir": "...",
-                            "tsConfig": "..."
+                            "rootDir": ".",
+                            "tsConfig": "./tsconfig.json"
                         }
                     }
                     `;
@@ -112,7 +112,10 @@ describe('ConfigurationParser', () => {
                 await configParser.parse('test/typewiz.json');
                 return configParser.getCompilerOptions();
             })(),
-        ).resolves.toEqual({ rootDir: '...', tsConfig: '...' });
+        ).resolves.toEqual({
+            rootDir: path.resolve('test', '.'),
+            tsConfig: path.resolve('test', './tsconfig.json'),
+        });
     });
 
     it('should return IInstrumentOptions if no configuration is specified', async () => {
@@ -135,8 +138,8 @@ describe('ConfigurationParser', () => {
                 typewizConfig = `
                     {
                         "common": {
-                            "rootDir": "...",
-                            "tsConfig": "..."
+                            "rootDir": ".",
+                            "tsConfig": "./tsconfig.json"
                         },
                         "instrument": {
                             "instrumentCallExpressions": true,
@@ -152,9 +155,9 @@ describe('ConfigurationParser', () => {
         ).resolves.toEqual({
             instrumentCallExpressions: true,
             instrumentImplicitThis: true,
-            rootDir: '...',
+            rootDir: path.resolve('test', '.'),
             skipTwizDeclarations: true,
-            tsConfig: '...',
+            tsConfig: path.resolve('test', './tsconfig.json'),
         });
     });
 
@@ -178,8 +181,8 @@ describe('ConfigurationParser', () => {
                 typewizConfig = `
                     {
                         "common": {
-                            "rootDir": "...",
-                            "tsConfig": "..."
+                            "rootDir": ".",
+                            "tsConfig": "./tsconfig.json"
                         },
                         "applyTypes": {
                             "prefix": "TypeWiz |"
@@ -192,8 +195,8 @@ describe('ConfigurationParser', () => {
             })(),
         ).resolves.toEqual({
             prefix: 'TypeWiz |',
-            rootDir: '...',
-            tsConfig: '...',
+            rootDir: path.resolve('test', '.'),
+            tsConfig: path.resolve('test', './tsconfig.json'),
         });
     });
 });

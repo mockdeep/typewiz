@@ -10,6 +10,7 @@ const readFileAsync = util.promisify(fs.readFile);
 
 export class ConfigurationParser {
     private typewizConfig: any;
+    private configurationPath: string | undefined;
 
     public findConfigFile(cwd: string): string {
         return ts.findConfigFile(cwd, ts.sys.fileExists, 'typewiz.json');
@@ -23,6 +24,7 @@ export class ConfigurationParser {
         let typewizConfigString;
         try {
             typewizConfigString = await readFileAsync(path.resolve(configurationPath), { encoding: 'utf8' });
+            this.configurationPath = path.resolve(configurationPath);
         } catch (error) {
             typewizConfigString = '{}';
         }
@@ -43,7 +45,14 @@ export class ConfigurationParser {
     }
 
     public getCompilerOptions(): ICompilerOptions {
-        return { ...this.typewizConfig.common };
+        const compilerOptions: ICompilerOptions = { ...this.typewizConfig.common };
+        if (compilerOptions.rootDir && this.configurationPath) {
+            compilerOptions.rootDir = path.resolve(path.dirname(this.configurationPath), compilerOptions.rootDir);
+        }
+        if (compilerOptions.tsConfig && this.configurationPath) {
+            compilerOptions.tsConfig = path.resolve(path.dirname(this.configurationPath), compilerOptions.tsConfig);
+        }
+        return compilerOptions;
     }
 
     public getInstrumentOptions(): IInstrumentOptions {
