@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "ts-node": "^5.0.1",
-    "typewiz": "^0.7.2"
+    "typewiz-core": "^0.7.2",
+    "util.promisify": "^1.0.0"
   },
   "devDependencies": {
     "rimraf": "^2.6.2"

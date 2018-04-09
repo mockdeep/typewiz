@@ -7,15 +7,16 @@
   "author": "Uri Shaked <uri@urishaked.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts dist",
+    "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts src/typewiz.json dist",
     "lint": "tslint -p .",
     "prepublish": "yarn build"
   },
   "files": ["dist"],
   "dependencies": {
+    "ajv": "^6.4.0",
     "typescript": "^2.4.2"
   },
   "engines": {
-    "node": ">= 6.4.0"
+    "node": ">= 8.0.0"
   }
 }

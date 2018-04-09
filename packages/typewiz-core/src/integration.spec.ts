@@ -5,6 +5,7 @@ import * as vm from 'vm';
 import { transpileSource, virtualCompilerHost } from './test-utils/transpile';
 
 const mockFs = {
+    readFile: jest.fn(fs.readFile),
     readFileSync: jest.fn(fs.readFileSync),
     writeFileSync: jest.fn(fs.writeFileSync),
 };

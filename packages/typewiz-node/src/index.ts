@@ -1,8 +1,12 @@
+require('util.promisify/shim')(); // tslint:disable-line:no-var-requires
+import * as path from 'path';
 import * as tsnode from 'ts-node';
-import * as typewiz from 'typewiz';
-import { $_$twiz } from 'typewiz/dist/type-collector-snippet';
+import * as typewiz from 'typewiz-core';
+import { $_$twiz } from 'typewiz-core/dist/type-collector-snippet';
+import * as nodeRegister from './node-register';
 
 export interface IOptions {
+    typewizConfig?: string;
     applyOnExit?: boolean;
     tsNode?: tsnode.Options;
 }
@@ -12,9 +16,18 @@ export function getCollectedTypes() {
 }
 
 export function register(options: IOptions = {}) {
-    typewiz.register();
+    const configurationParser = new typewiz.ConfigurationParser();
+    const typewizConfigPath =
+        options && options.typewizConfig
+            ? path.resolve(options.typewizConfig)
+            : configurationParser.findConfigFile(process.cwd());
+    configurationParser.parseSync(typewizConfigPath);
+
+    nodeRegister.register({ typewizConfig: typewizConfigPath });
     tsnode.register(options.tsNode);
     if (options.applyOnExit !== false) {
-        process.on('exit', () => typewiz.applyTypes(getCollectedTypes()));
+        process.on('exit', () => {
+            typewiz.applyTypes(getCollectedTypes(), configurationParser.getApplyTypesOptions());
+        });
     }
 }

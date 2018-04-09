@@ -1,31 +1,36 @@
-import { instrument } from './index';
-import { $_$twiz } from './type-collector-snippet';
+import { ConfigurationParser, instrument } from 'typewiz-core';
+import { $_$twiz } from 'typewiz-core/dist/type-collector-snippet';
 
 type ICompileFunction = (source: string, filename: string) => void;
 
 export interface IRegisterOptions {
-    extensions: string[];
+    typewizConfig: string;
+    extensions?: string[];
 }
 
-export function register(options?: IRegisterOptions) {
+export function register(options: IRegisterOptions) {
     options = Object.assign(
         {
             extensions: ['.ts', '.tsx'],
+            typewizConfig: 'typewiz.json',
         },
         options,
     );
 
+    const configurationParser = new ConfigurationParser();
+    configurationParser.parseSync(options.typewizConfig);
+
     (global as any).$_$twiz = $_$twiz;
 
     const oldHooks: { [key: string]: any } = {};
-    for (const extension of options.extensions) {
+    for (const extension of options.extensions!) {
         const oldHook = require.extensions[extension] || require.extensions['.js'];
         oldHooks[extension] = oldHook;
         require.extensions[extension] = (m: NodeModule & { _compile: ICompileFunction }, file) => {
             const oldCompile = m._compile;
             m._compile = (source: string, filename: string) => {
                 m._compile = oldCompile;
-                m._compile(instrument(source, filename), filename);
+                m._compile(instrument(source, filename, configurationParser.getInstrumentOptions()), filename);
             };
             oldHook(m, file);
         };
