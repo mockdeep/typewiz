@@ -7,6 +7,7 @@ import { IApplyTypesOptions } from './apply-types';
 import { ICompilerOptions } from './compiler-helper';
 import { IInstrumentOptions } from './instrument';
 const readFileAsync = util.promisify(fs.readFile);
+const typewizConfigSchema = require('./typewiz.json'); // tslint:disable-line:no-var-requires
 
 export class ConfigurationParser {
     private typewizConfig: any;
@@ -17,10 +18,6 @@ export class ConfigurationParser {
     }
 
     public async parse(configurationPath: string): Promise<void> {
-        const typewizConfigSchema = JSON.parse(
-            await readFileAsync(path.join(__dirname, 'typewiz.json'), { encoding: 'utf8' }),
-        );
-
         let typewizConfigString;
         try {
             typewizConfigString = await readFileAsync(path.resolve(configurationPath), { encoding: 'utf8' });
