@@ -32,6 +32,27 @@ Then, add `typewiz-webpack` to your list of loaders, just after your usual TypeS
   },
 ```
 
+Optionally you can also specify the path to your typewiz.json file:
+
+```javascript
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loaders:[
+          'awesome-typescript-loader',
+          {
+            loader:'typewiz-webpack',
+            options:{
+              typewizConfig: path.resolve(__dirname, "../typewiz.json")
+            }
+          }
+        ]
+      }
+    ]
+  },
+```
+
 Next, add `TypewizPlugin` to your list of plugins, and configure
 your webpack-dev-server to save the collected type info to disk using the provided `typewizCollectorMiddleware` middleware. Here is an example of what your final config file may look like:
 
