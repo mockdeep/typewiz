@@ -15,15 +15,30 @@ const mockFs = {
             }
         },
     ),
+    readFileSync: jest.fn((filePath: string, options: any) => {
+        if (
+            filePath === path.resolve('packages', 'typewiz-core', 'src', 'typewiz.json') ||
+            filePath === path.resolve('not-found-file.json')
+        ) {
+            return fs.readFileSync(filePath, options);
+        } else {
+            return typewizConfig;
+        }
+    }),
 };
 jest.doMock('fs', () => mockFs);
 
 import { ConfigurationParser } from './configuration-parser';
 
 describe('ConfigurationParser', () => {
-    it('should handle a non-existing typewiz.json file by using an empty default config', async () => {
+    it('should handle a non-existing typewiz.json file by using an empty default config - async', async () => {
         const configParser = new ConfigurationParser();
         await configParser.parse('not-found-file.json');
+    });
+
+    it('should handle a non-existing typewiz.json file by using an empty default config - sync', () => {
+        const configParser = new ConfigurationParser();
+        configParser.parseSync('not-found-file.json');
     });
 
     it('should throw an error if given bad typewiz.json file', async () => {
@@ -97,7 +112,7 @@ describe('ConfigurationParser', () => {
         ).resolves.toEqual({});
     });
 
-    it('should return an ICompilerConfig if a configuration is specified', async () => {
+    it('should return an ICompilerConfig if a configuration is specified - async', async () => {
         await expect(
             (async () => {
                 typewizConfig = `
@@ -113,6 +128,27 @@ describe('ConfigurationParser', () => {
                 return configParser.getCompilerOptions();
             })(),
         ).resolves.toEqual({
+            rootDir: path.resolve('test', '.'),
+            tsConfig: path.resolve('test', './tsconfig.json'),
+        });
+    });
+
+    it('should return an ICompilerConfig if a configuration is specified - sync', () => {
+        expect(
+            (() => {
+                typewizConfig = `
+                    {
+                        "common": {
+                            "rootDir": ".",
+                            "tsConfig": "./tsconfig.json"
+                        }
+                    }
+                    `;
+                const configParser = new ConfigurationParser();
+                configParser.parseSync('test/typewiz.json');
+                return configParser.getCompilerOptions();
+            })(),
+        ).toEqual({
             rootDir: path.resolve('test', '.'),
             tsConfig: path.resolve('test', './tsconfig.json'),
         });

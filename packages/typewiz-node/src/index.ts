@@ -15,15 +15,15 @@ export function getCollectedTypes() {
     return $_$twiz.get();
 }
 
-export async function register(options: IOptions = {}) {
+export function register(options: IOptions = {}) {
     const configurationParser = new typewiz.ConfigurationParser();
     const typewizConfigPath =
         options && options.typewizConfig
             ? path.resolve(options.typewizConfig)
             : configurationParser.findConfigFile(process.cwd());
-    await configurationParser.parse(typewizConfigPath);
+    configurationParser.parseSync(typewizConfigPath);
 
-    await nodeRegister.register({ typewizConfig: typewizConfigPath });
+    nodeRegister.register({ typewizConfig: typewizConfigPath });
     tsnode.register(options.tsNode);
     if (options.applyOnExit !== false) {
         process.on('exit', () => {

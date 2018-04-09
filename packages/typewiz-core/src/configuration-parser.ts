@@ -26,19 +26,19 @@ export class ConfigurationParser {
             typewizConfigString = '{}';
         }
 
-        let typewizConfig;
+        this.parseConfig(typewizConfigString);
+    }
+
+    public parseSync(configurationPath: string): void {
+        let typewizConfigString;
         try {
-            typewizConfig = JSON.parse(typewizConfigString);
+            typewizConfigString = fs.readFileSync(path.resolve(configurationPath), { encoding: 'utf8' });
+            this.configurationPath = path.resolve(configurationPath);
         } catch (error) {
-            throw new Error('Could not parser configuration file: ' + error.message);
+            typewizConfigString = '{}';
         }
 
-        const ajv = new Ajv();
-        const valid = ajv.validate(typewizConfigSchema, typewizConfig);
-        if (!valid) {
-            throw new Error(ajv.errorsText(ajv.errors, { dataVar: 'typewiz.json' }));
-        }
-        this.typewizConfig = typewizConfig;
+        this.parseConfig(typewizConfigString);
     }
 
     public getCompilerOptions(): ICompilerOptions {
@@ -58,5 +58,21 @@ export class ConfigurationParser {
 
     public getApplyTypesOptions(): IApplyTypesOptions {
         return { ...this.getCompilerOptions(), ...this.typewizConfig.applyTypes };
+    }
+
+    private parseConfig(typewizConfigString: string): void {
+        let typewizConfig;
+        try {
+            typewizConfig = JSON.parse(typewizConfigString);
+        } catch (error) {
+            throw new Error('Could not parser configuration file: ' + error.message);
+        }
+
+        const ajv = new Ajv();
+        const valid = ajv.validate(typewizConfigSchema, typewizConfig);
+        if (!valid) {
+            throw new Error(ajv.errorsText(ajv.errors, { dataVar: 'typewiz.json' }));
+        }
+        this.typewizConfig = typewizConfig;
     }
 }

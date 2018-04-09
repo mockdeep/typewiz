@@ -8,7 +8,7 @@ export interface IRegisterOptions {
     extensions?: string[];
 }
 
-export async function register(options: IRegisterOptions) {
+export function register(options: IRegisterOptions) {
     options = Object.assign(
         {
             extensions: ['.ts', '.tsx'],
@@ -18,7 +18,7 @@ export async function register(options: IRegisterOptions) {
     );
 
     const configurationParser = new ConfigurationParser();
-    await configurationParser.parse(options.typewizConfig);
+    configurationParser.parseSync(options.typewizConfig);
 
     (global as any).$_$twiz = $_$twiz;
 
