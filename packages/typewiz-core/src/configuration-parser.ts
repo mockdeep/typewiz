@@ -9,9 +9,15 @@ import { IInstrumentOptions } from './instrument';
 const readFileAsync = util.promisify(fs.readFile);
 const typewizConfigSchema = require('./typewiz.json'); // tslint:disable-line:no-var-requires
 
+export interface ITypewizConfigFile {
+    common?: Partial<ICompilerOptions>;
+    instrument?: Partial<IInstrumentOptions>;
+    applyTypes?: Partial<IApplyTypesOptions>;
+}
+
 export class ConfigurationParser {
-    private typewizConfig: any;
-    private configurationPath: string | undefined;
+    private typewizConfig: ITypewizConfigFile = {};
+    private configurationPath?: string;
 
     public findConfigFile(cwd: string): string {
         return ts.findConfigFile(cwd, ts.sys.fileExists, 'typewiz.json');
@@ -23,7 +29,8 @@ export class ConfigurationParser {
             typewizConfigString = await readFileAsync(path.resolve(configurationPath), { encoding: 'utf8' });
             this.configurationPath = path.resolve(configurationPath);
         } catch (error) {
-            typewizConfigString = '{}';
+            // TODO we should pass this error to caller
+            return;
         }
 
         this.parseConfig(typewizConfigString);
@@ -35,7 +42,8 @@ export class ConfigurationParser {
             typewizConfigString = fs.readFileSync(path.resolve(configurationPath), { encoding: 'utf8' });
             this.configurationPath = path.resolve(configurationPath);
         } catch (error) {
-            typewizConfigString = '{}';
+            // TODO we should pass this error to caller
+            return;
         }
 
         this.parseConfig(typewizConfigString);
