@@ -1,0 +1,29 @@
+{
+  "name": "typewiz",
+  "version": "0.7.2",
+  "main": "dist/cli.js",
+  "bin": "dist/cli.js",
+  "typings": "dist/cli.d.ts",
+  "repository": "https://github.com/urish/typewiz",
+  "description": "Automatically discover and add missing types in your TypeScript code",
+  "author": "Uri Shaked <uri@urishaked.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc && copyfiles -u 1 src/type-collector-snippet.ts src/typewiz.json dist",
+    "lint": "tslint -p .",
+    "prepublish": "yarn build"
+  },
+  "files": ["dist"],
+  "dependencies": {
+    "commander": "^2.15.1",
+    "typewiz-core": "^0.7.2",
+    "update-notifier": "^2.4.0"
+  },
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.60",
+    "@types/update-notifier": "^2.2.0"
+  }
+}
