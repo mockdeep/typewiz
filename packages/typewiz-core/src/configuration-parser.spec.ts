@@ -4,7 +4,7 @@ import * as path from 'path';
 let typewizConfig = '';
 const mockFs = {
     readFile: jest.fn(
-        (filePath: string, options: any, callback: (err: NodeJS.ErrnoException, data: string) => void) => {
+        (filePath: string, options: any, callback: (err: NodeJS.ErrnoException | null, data: string) => void) => {
             if (
                 filePath === path.resolve('packages', 'typewiz-core', 'src', 'typewiz.json') ||
                 filePath === path.resolve('not-found-file.json')
@@ -47,153 +47,121 @@ describe('ConfigurationParser', () => {
     });
 
     it('should throw an error if given bad typewiz.json file', async () => {
-        await expect(
-            (() => {
-                typewizConfig = '<invalid json>';
-                const configParser = new ConfigurationParser();
-                return configParser.parse('test/typewiz.json');
-            })(),
-        ).rejects.toThrow(`Could not parser configuration file: Unexpected token < in JSON at position 0`);
+        typewizConfig = '<invalid json>';
+        const configParser = new ConfigurationParser();
+        await expect(configParser.parse('test/typewiz.json')).rejects.toThrow(
+            `Could not parser configuration file: Unexpected token < in JSON at position 0`,
+        );
     });
 
     it('should throw an error if given a typewiz.json file with invalid properties', async () => {
-        await expect(
-            (() => {
-                typewizConfig = `
-                    {
-                        "commond": {
-                            "rootDir": ".",
-                            "tsConfig": "./tsconfig.json"
-                        }
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                return configParser.parse('test/typewiz.json');
-            })(),
-        ).rejects.toThrow(`typewiz.json should NOT have additional properties`);
+        typewizConfig = `
+        {
+            "commond": {
+                "rootDir": ".",
+                "tsConfig": "./tsconfig.json"
+            }
+        }
+        `;
+        const configParser = new ConfigurationParser();
+        await expect(configParser.parse('test/typewiz.json')).rejects.toThrow(
+            `typewiz.json should NOT have additional properties`,
+        );
     });
 
     it('should parse a valid typewiz.json file with no options set', async () => {
-        typewizConfig = `
-                    {
-                    }
-                    `;
+        typewizConfig = `{}`;
         const configParser = new ConfigurationParser();
         await configParser.parse('test/typewiz.json');
     });
 
     it('should parse a valid typewiz.json file with all options set', async () => {
         typewizConfig = `
-                    {
-                        "common": {
-                            "rootDir": ".",
-                            "tsConfig": "./tsconfig.json"
-                        },
-                        "instrument": {
-                            "instrumentCallExpressions": true,
-                            "instrumentImplicitThis": true,
-                            "skipTwizDeclarations": true
-                        },
-                        "applyTypes": {
-                            "prefix": "TypeWiz |"
-                        }
-                    }
-                    `;
+        {
+            "common": {
+                "rootDir": ".",
+                "tsConfig": "./tsconfig.json"
+            },
+            "instrument": {
+                "instrumentCallExpressions": true,
+                "instrumentImplicitThis": true,
+                "skipTwizDeclarations": true
+            },
+            "applyTypes": {
+                "prefix": "TypeWiz |"
+            }
+        }
+        `;
         const configParser = new ConfigurationParser();
         await configParser.parse('test/typewiz.json');
     });
 
     it('should return an ICompilerConfig if no configuration is specified', async () => {
-        await expect(
-            (async () => {
-                typewizConfig = `
-                    {
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                await configParser.parse('test/typewiz.json');
-                return configParser.getCompilerOptions();
-            })(),
-        ).resolves.toEqual({});
+        typewizConfig = `{}`;
+        const configParser = new ConfigurationParser();
+        await configParser.parse('test/typewiz.json');
+        expect(configParser.getCompilerOptions()).toEqual({});
     });
 
     it('should return an ICompilerConfig if a configuration is specified - async', async () => {
-        await expect(
-            (async () => {
-                typewizConfig = `
-                    {
-                        "common": {
-                            "rootDir": ".",
-                            "tsConfig": "./tsconfig.json"
-                        }
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                await configParser.parse('test/typewiz.json');
-                return configParser.getCompilerOptions();
-            })(),
-        ).resolves.toEqual({
+        typewizConfig = `
+        {
+            "common": {
+                "rootDir": ".",
+                "tsConfig": "./tsconfig.json"
+            }
+        }
+        `;
+        const configParser = new ConfigurationParser();
+        await configParser.parse('test/typewiz.json');
+
+        expect(configParser.getCompilerOptions()).toEqual({
             rootDir: path.resolve('test', '.'),
             tsConfig: path.resolve('test', './tsconfig.json'),
         });
     });
 
     it('should return an ICompilerConfig if a configuration is specified - sync', () => {
-        expect(
-            (() => {
-                typewizConfig = `
-                    {
-                        "common": {
-                            "rootDir": ".",
-                            "tsConfig": "./tsconfig.json"
-                        }
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                configParser.parseSync('test/typewiz.json');
-                return configParser.getCompilerOptions();
-            })(),
-        ).toEqual({
+        typewizConfig = `
+        {
+            "common": {
+                "rootDir": ".",
+                "tsConfig": "./tsconfig.json"
+            }
+        }
+        `;
+        const configParser = new ConfigurationParser();
+        configParser.parseSync('test/typewiz.json');
+        expect(configParser.getCompilerOptions()).toEqual({
             rootDir: path.resolve('test', '.'),
             tsConfig: path.resolve('test', './tsconfig.json'),
         });
     });
 
     it('should return IInstrumentOptions if no configuration is specified', async () => {
-        await expect(
-            (async () => {
-                typewizConfig = `
-                    {
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                await configParser.parse('test/typewiz.json');
-                return configParser.getInstrumentOptions();
-            })(),
-        ).resolves.toEqual({});
+        typewizConfig = `{}`;
+        const configParser = new ConfigurationParser();
+        await configParser.parse('test/typewiz.json');
+        expect(configParser.getInstrumentOptions()).toEqual({});
     });
 
     it('should return IInstrumentOptions if a configuration is specified', async () => {
-        await expect(
-            (async () => {
-                typewizConfig = `
-                    {
-                        "common": {
-                            "rootDir": ".",
-                            "tsConfig": "./tsconfig.json"
-                        },
-                        "instrument": {
-                            "instrumentCallExpressions": true,
-                            "instrumentImplicitThis": true,
-                            "skipTwizDeclarations": true
-                        }
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                await configParser.parse('test/typewiz.json');
-                return configParser.getInstrumentOptions();
-            })(),
-        ).resolves.toEqual({
+        typewizConfig = `
+        {
+            "common": {
+                "rootDir": ".",
+                "tsConfig": "./tsconfig.json"
+            },
+            "instrument": {
+                "instrumentCallExpressions": true,
+                "instrumentImplicitThis": true,
+                "skipTwizDeclarations": true
+            }
+        }
+        `;
+        const configParser = new ConfigurationParser();
+        await configParser.parse('test/typewiz.json');
+        expect(configParser.getInstrumentOptions()).toEqual({
             instrumentCallExpressions: true,
             instrumentImplicitThis: true,
             rootDir: path.resolve('test', '.'),
@@ -203,38 +171,27 @@ describe('ConfigurationParser', () => {
     });
 
     it('should return IApplyTypesOptions if no configuration is specified', async () => {
-        await expect(
-            (async () => {
-                typewizConfig = `
-                    {
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                await configParser.parse('test/typewiz.json');
-                return configParser.getApplyTypesOptions();
-            })(),
-        ).resolves.toEqual({});
+        typewizConfig = `{}`;
+        const configParser = new ConfigurationParser();
+        await configParser.parse('test/typewiz.json');
+        expect(configParser.getApplyTypesOptions()).toEqual({});
     });
 
     it('should return IApplyTypesOptions if a configuration is specified', async () => {
-        await expect(
-            (async () => {
-                typewizConfig = `
-                    {
-                        "common": {
-                            "rootDir": ".",
-                            "tsConfig": "./tsconfig.json"
-                        },
-                        "applyTypes": {
-                            "prefix": "TypeWiz |"
-                        }
-                    }
-                    `;
-                const configParser = new ConfigurationParser();
-                await configParser.parse('test/typewiz.json');
-                return configParser.getApplyTypesOptions();
-            })(),
-        ).resolves.toEqual({
+        typewizConfig = `
+        {
+            "common": {
+                "rootDir": ".",
+                "tsConfig": "./tsconfig.json"
+            },
+            "applyTypes": {
+                "prefix": "TypeWiz |"
+            }
+        }
+        `;
+        const configParser = new ConfigurationParser();
+        await configParser.parse('test/typewiz.json');
+        expect(configParser.getApplyTypesOptions()).toEqual({
             prefix: 'TypeWiz |',
             rootDir: path.resolve('test', '.'),
             tsConfig: path.resolve('test', './tsconfig.json'),
