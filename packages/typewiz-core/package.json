@@ -1,6 +1,6 @@
 {
   "name": "typewiz-core",
-  "version": "0.7.2",
+  "version": "1.0.0-alpha.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": "https://github.com/urish/typewiz",
@@ -11,7 +11,9 @@
     "lint": "tslint -p .",
     "prepublish": "yarn build"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "ajv": "^6.4.0",
     "typescript": "^2.4.2"
