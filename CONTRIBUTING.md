@@ -16,7 +16,7 @@ You if you interested in contributing and looking for an issue to work on, check
 
 ## Tests, Lint and Formatting
 
-Please create a test case for any feature you add or bug you fix. The [integration tests](https://github.com/urish/typewiz/blob/master/src/integration.spec.ts) are quite simple. You simply need to provide the input TypeScript source code and the expected output (with the added type annotations).
+Please create a test case for any feature you add or bug you fix. The [integration tests](packages/typewiz-core/src/integration.spec.ts) are quite simple. You simply need to provide the input TypeScript source code and the expected output (with the added type annotations).
 
 To run the tests (and linting) execute:
 
@@ -32,16 +32,15 @@ The project provides [Wallaby.js](https://wallabyjs.com/) configuration, you can
 
 If you make some changes to TypeWiz and wish to test them on a Node.js project, you can follow these steps:
 
-1. Clone typewiz, and make some changes
-2. Run `yarn build` and then `yarn link` inside the typewiz directory
-3. Go to your Node.js project folder, and run `yarn add -D typewiz-node` and `yarn link typewiz` 
+1. Clone typewiz, run `yarn install`and make some changes
+2. Run `yarn build` inside the typewiz directory
 4. Run your project's entry point with typewiz-node, e.g. `yarn typewiz-node index.ts`
 
-Whenever you make any changes to typewiz and want to test them, simply run `yarn build` in the typewiz directory again. You don't need to repeat the linking part.
+Whenever you make any changes to typewiz and want to test them, simply run `yarn build` in the typewiz directory again.
 
 ## Project structure
 
-- [src](src) - Core typewiz library
+- [packages/typewiz-core](packages/typewiz-core) - Core typewiz library
 - [packages/typewiz-node](packages/typewiz-node) - Node JS runner
 - [packages/typewiz-webpack](packages/typewiz-webpack) - Webpack Loader + Plugin
 

@@ -39,14 +39,14 @@ For front-end code, please have a look at the [TypeWiz WebPack Plugin](packages/
 
 For node.js code, please check out the [typewiz-node Runner](packages/typewiz-node/README.md).
 
-If you are interested in creating your own custom integration, see the [Integration Test](src/integration.spec.ts) 
+If you are interested in creating your own custom integration, see the [Integration Test](packages/typewiz-core/src/integration.spec.ts) 
 for an example how to directly use the TypeWiz API. You can use the API directly by adding this library to your project:
 
-    yarn add -D typewiz
+    yarn add -D typewiz-core
 
 or
 
-    npm install --save-dev typewiz
+    npm install --save-dev typewiz-core
 
 ## Configuration options
 

@@ -1,6 +1,6 @@
 # typewiz-node
 
-Automatically add types to node.js TypeScript code using [typewiz](https://www.npmjs.com/package/typewiz)
+Automatically add types to node.js TypeScript code using [typewiz-core](https://www.npmjs.com/package/typewiz-core)
 
 [![Build Status](https://travis-ci.org/urish/typewiz.png?branch=master)](https://travis-ci.org/urish/typewiz)
 [![Coverage Status](https://coveralls.io/repos/github/urish/typewiz/badge.svg?branch=master)](https://coveralls.io/github/urish/typewiz?branch=master)
