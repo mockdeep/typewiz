@@ -2,6 +2,7 @@
 
 import * as program from 'commander';
 import * as fs from 'fs';
+import { dirname } from 'path';
 import { applyTypes, ConfigurationParser, getProgram, instrument, typeCoverage } from 'typewiz-core';
 import * as updateNotifier from 'update-notifier';
 
@@ -39,7 +40,7 @@ function applyTypesHandler(typesJson: string, opts: ICliOptions) {
 }
 
 function coverageHandler(tsConfigPath: string) {
-    const coverage = typeCoverage(getProgram({ tsConfig: tsConfigPath })!);
+    const coverage = typeCoverage(getProgram({ tsConfig: tsConfigPath, rootDir: dirname(tsConfigPath) })!);
     console.log(`${coverage.knownTypes} of ${coverage.totalTypes} types are known.`);
     console.log(`Your type coverage is: ${coverage.percentage.toFixed(2)}%`);
 }

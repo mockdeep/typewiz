@@ -10,6 +10,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && tsc",
+    "test": "jest",
     "lint": "tslint -p .",
     "prepublish": "yarn build"
   },
