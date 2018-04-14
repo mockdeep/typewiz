@@ -1,6 +1,6 @@
 {
   "name": "typewiz",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-beta.0",
   "main": "dist/cli.js",
   "bin": "dist/cli.js",
   "typings": "dist/cli.d.ts",
@@ -14,10 +14,12 @@
     "lint": "tslint -p .",
     "prepublish": "yarn build"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "commander": "^2.15.1",
-    "typewiz-core": "^1.0.0-alpha.0",
+    "typewiz-core": "^1.0.0-beta.0",
     "update-notifier": "^2.4.0"
   },
   "engines": {
