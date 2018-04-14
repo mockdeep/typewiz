@@ -1,6 +1,6 @@
 {
   "name": "typewiz-webpack",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": "https://github.com/urish/typewiz",
@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "loader-utils": "^1.1.0",
-    "typewiz-core": "^1.0.0-beta.0",
+    "typewiz-core": "^1.0.0-beta.1",
     "util.promisify": "^1.0.0",
     "webpack-sources": "^1.1.0"
   },
