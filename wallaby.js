@@ -3,6 +3,9 @@ module.exports = function(wallaby) {
         files: [
             'packages/*/src/**/*.ts',
             'packages/*/src/**/*.json',
+            { pattern: 'packages/*/fixtures/**/*', instrument: false },
+            { pattern: 'packages/typewiz/dist/**.js', instrument: false },
+            { pattern: 'packages/typewiz/package.json', instrument: false },
             { pattern: 'packages/*/src/**/*.spec.ts', ignore: true },
         ],
 
