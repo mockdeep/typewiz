@@ -89,10 +89,10 @@ module.exports = {
 };
 ```
 
-Finally, run your app with webpack. The collected type information will be saved to disk inside `collected-types.json`. This type information can be passed to the `applyTypes()` method from `typewiz-core` to apply the types to your source code, e.g.:
+Finally, run your app with webpack. The collected type information will be saved to disk inside `collected-types.json`. To apply the types to your source code install the  [typewiz cli](https://www.npmjs.com/package/typewiz) and run the apply command:
 
 ```
-node -e "require('typewiz-core').applyTypes(require('./collected-types.json'))"
+typewiz applyTypes collected-types.json
 ```
 
 Check out [typewiz-webpack-demo](https://github.com/urish/typewiz-webpack-demo) for a complete example of WebPack + TypeWiz setup.
