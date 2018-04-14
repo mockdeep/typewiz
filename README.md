@@ -39,6 +39,8 @@ For front-end code, please have a look at the [TypeWiz WebPack Plugin](packages/
 
 For node.js code, please check out the [typewiz-node Runner](packages/typewiz-node/README.md).
 
+To use TypeWiz from the command line try the [TypeWiz CLI](packages/typewiz/README.md).
+
 If you are interested in creating your own custom integration, see the [Integration Test](packages/typewiz-core/src/integration.spec.ts) 
 for an example how to directly use the TypeWiz API. You can use the API directly by adding this library to your project:
 
