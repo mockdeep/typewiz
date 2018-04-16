@@ -13,7 +13,7 @@ export interface IExtraOptions {
     arrow?: boolean;
     parens?: [number, number];
     thisType?: boolean;
-    comma?: boolean;
+    thisNeedsComma?: boolean;
 }
 
 function hasParensAroundArguments(node: ts.FunctionLike) {
@@ -73,7 +73,7 @@ function visit(
             if (needsThisInstrumentation) {
                 const opts: IExtraOptions = { thisType: true };
                 if (node.parameters.length > 0) {
-                    opts.comma = true;
+                    opts.thisNeedsComma = true;
                 }
                 const params = [
                     JSON.stringify('this'),

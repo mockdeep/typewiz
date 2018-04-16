@@ -63,7 +63,7 @@ export function applyTypesToFile(
             replacements.push(Replacement.insert(opts.parens[0], '('));
             suffix = ')';
         }
-        if (opts && opts.comma) {
+        if (opts && opts.thisNeedsComma) {
             suffix = ', ';
         }
         if (opts && opts.thisType) {
