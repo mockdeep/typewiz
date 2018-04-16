@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "ts-jest": "^22.4.2",
-    "typewiz": "^0.7.0"
+    "typewiz-core": "^1.0.0-beta.1",
+    "typewiz-node": "^1.0.0-beta.1"
   },
   "devDependencies": {
     "@types/babel-core": "^6.25.3",

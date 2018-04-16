@@ -1,6 +1,6 @@
 import { getCacheKey, process as originalProcess } from 'ts-jest';
 import { JestConfig, Path, TransformOptions } from 'ts-jest/dist/jest-types';
-import { instrument } from 'typewiz';
+import { instrument } from 'typewiz-core';
 
 function process(
     src: string,
@@ -9,7 +9,7 @@ function process(
     transformOptions: TransformOptions = { instrument: false },
 ) {
     src =
-        `require('typewiz').register();` +
+        `require('typewiz-node').register();` +
         instrument(src, filePath, {
             instrumentCallExpressions: true,
             instrumentImplicitThis: true,
