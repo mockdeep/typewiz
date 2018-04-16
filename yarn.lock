@@ -4306,13 +4306,6 @@ typescript@^2.8.1:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.1.tgz#6160e4f8f195d5ba81d4876f9c0cc1fbc0820624"
 
-typewiz-core@^1.0.0-alpha.0:
-  version "1.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/typewiz-core/-/typewiz-core-1.0.0-alpha.0.tgz#4444c77114d4a548b3b5da46ae73ec260cd870e5"
-  dependencies:
-    ajv "^6.4.0"
-    typescript "^2.4.2"
-
 uglify-js@^2.6:
   version "2.8.29"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.8.29.tgz#29c5733148057bb4e1f75df35b7a9cb72e6a59dd"
