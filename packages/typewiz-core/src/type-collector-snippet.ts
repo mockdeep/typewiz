@@ -5,9 +5,9 @@ class NestError extends Error {}
 export type ISourceLocation = [string, number]; /* filename, offset */
 
 export type ICollectedTypeEntry = [
-    string,
-    number,
-    Array<[string | undefined, ISourceLocation | undefined]>,
+    string /* filename */,
+    number /* offset */,
+    Array<[string | undefined, ISourceLocation | undefined]> /* discovered types */,
     IExtraOptions
 ];
 
