@@ -13,7 +13,8 @@
                 },
                 "tsConfig": {
                     "type": "string",
-                    "description": "Path to your project's tsconfig file."
+                    "description":
+                        "Path to your project's tsconfig file. This is required for several other options like implicit this instrumentation and type inference using static analysis."
                 }
             }
         },
@@ -22,15 +23,19 @@
             "properties": {
                 "instrumentCallExpressions": {
                     "type": "boolean",
+                    "description":
+                        "Try to find even more types by combining static analysis with the runtime analysis. TypeWiz will try to use TypeScript's inferred types when determining the type of a function argument.",
                     "default": false
                 },
                 "instrumentImplicitThis": {
                     "type": "boolean",
-                    "description": "Requires common.tsConfig to be set",
+                    "description":
+                        "Find type of this in non-class member functions. Requires common.tsConfig to be set",
                     "default": false
                 },
                 "skipTwizDeclarations": {
                     "type": "boolean",
+                    "description": "Don't add a declaration of $_$twiz to instrumented files.",
                     "default": false
                 }
             }

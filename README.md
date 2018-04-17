@@ -39,24 +39,50 @@ For front-end code, please have a look at the [TypeWiz WebPack Plugin](packages/
 
 For node.js code, please check out the [typewiz-node Runner](packages/typewiz-node/README.md).
 
-If you are interested in creating your own custom integration, see the [Integration Test](src/integration.spec.ts) 
+To use TypeWiz from the command line try the [TypeWiz CLI](packages/typewiz/README.md).
+
+If you are interested in creating your own custom integration, see the [Integration Test](packages/typewiz-core/src/integration.spec.ts) 
 for an example how to directly use the TypeWiz API. You can use the API directly by adding this library to your project:
 
-    yarn add -D typewiz
+    yarn add -D typewiz-core
 
 or
 
-    npm install --save-dev typewiz
+    npm install --save-dev typewiz-core
 
 ## Configuration options
 
-TypeWiz functions accepts several configuration options which enable specific features:
+Configuration options can be specified using the `typewiz.json` configuration file. This file is used by `typewiz-node`
+and `typewiz-webpack` and can be parsed using the `ConfigurationParser` class in `typewiz-core` for custom integrations.
 
+The `typewiz.json` file has the following format:
+```json
+{
+    "common":{
+        "rootDir":".",
+        "tsConfig":"tsconfig.json"
+    },
+    "instrument":{
+        "instrumentCallExpressions":true,
+        "instrumentImplicitThis":true,
+        "skipTwizDeclarations":true
+    },
+    "applyTypes":{
+        "prefix":"TypeWiz |"
+    }
+}
+```
+
+Options:
+* `rootDir: string` (default: undefined) - If given, all the file paths in the collected type info will be resolved relative to this directory.
 * `tsConfig: string` (default: undefined) - The path to your project's tsconfig.json file. 
-    This is required for several other options, such as when instrumenting implicit this.
+    This is required for several other options, like instrumenting implicit this and type inference using static analysis.
+
 * `instrumentCallExpressions: boolean` (default: false) - Try to find even more types by combining static analysis with
     the runtime analysis. TypeWiz will try to use TypeScript's inferred types when determining the type of a function argument. See [#27](https://github.com/urish/typewiz/pull/27) for an example.
 * `instrumentImplicitThis: boolean` (default: false) - Find type of `this` in non-class member functions. See [#33](https://github.com/urish/typewiz/issues/33) for discussion.
+* `skipTwizDeclarations: boolean` (default: false) - Don't add a declaration of $_$twiz to instrumented files.
+
 * `prefix: string` (default: '') - A prefix to add before each type added by `applyTypes()`. See [#11](https://github.com/urish/typewiz/issues/11).
 
 ## License
