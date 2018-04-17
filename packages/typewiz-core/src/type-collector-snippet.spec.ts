@@ -49,6 +49,15 @@ describe('type-collector', () => {
             expect(() => $_$twiz.typeName(a)).toThrowError('NestError');
         });
 
+        it('should throw a NestError if invoked while already running (e.g. from an object getter)', () => {
+            const obj = {
+                get recurse() {
+                    return $_$twiz.typeName(obj);
+                },
+            };
+            expect(() => $_$twiz.typeName(obj)).toThrow('Called getTypeName() while it was already running');
+        });
+
         describe('functions', () => {
             /* tslint:disable:only-arrow-functions*/
             it('should return "() => any" for functions without arguments', () => {

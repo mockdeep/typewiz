@@ -46,7 +46,7 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     applyTypes(collectedTypes, options);
 
     if (options && options.tsConfig) {
-        expect(options.tsConfigHost.readFile).toHaveBeenCalledWith(options.tsConfig);
+        expect(options.tsConfigHost!.readFile).toHaveBeenCalledWith(options.tsConfig);
     }
 
     if (mockFs.writeFileSync.mock.calls.length) {
@@ -444,6 +444,42 @@ describe('object types', () => {
         `;
 
         expect(typeWiz(input)).toBe(null); // null means we haven't updated the input file
+    });
+});
+
+describe('regression tests', () => {
+    it('issue #66: endless recursion in getTypeName()', () => {
+        const input = `
+            function log(o) {
+                console.log(o);
+            }
+            function f(o) {
+                return o.someVal;
+            }
+            const obj = {
+                get someVal() {
+                    log(this);
+                    return 5;
+                }
+            };
+            f(obj);
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            function log(o: { someVal: number }) {
+                console.log(o);
+            }
+            function f(o: { someVal: number }) {
+                return o.someVal;
+            }
+            const obj = {
+                get someVal() {
+                    log(this);
+                    return 5;
+                }
+            };
+            f(obj);
+        `);
     });
 });
 
