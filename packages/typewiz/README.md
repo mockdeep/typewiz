@@ -34,7 +34,7 @@ You can learn more about the project in the blog posts:
 
 ## Installation
 
-This package provides a Command Line Interface (CLI) for working working with TypeWiz. If you are looking to use TypeWiz with WebPack, check out [the TypeWiz WebPack Plugin](../typewiz-webpack/README.md). For node.js integration, have a look at the e.js code, please check out [the typewiz-node Runner](../typewiz-node/README.md).
+This package provides a Command Line Interface (CLI) for working working with TypeWiz. If you are looking to use TypeWiz with WebPack, check out [the TypeWiz WebPack Plugin](https://www.npmjs.com/package/typewiz-webpack). For node.js integration, have a look at the e.js code, please check out [the typewiz-node runner](https://www.npmjs.com/package/typewiz-node).
 
 Install the TypeWiz CLI by running the following command:
 
