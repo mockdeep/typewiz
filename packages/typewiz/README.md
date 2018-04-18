@@ -70,10 +70,10 @@ TypeWiz works by [instrumenting your code](https://medium.com/@urish/diving-into
 In some scenarios, for example, when an integration with your tool chain does not exist yet, you will want to instrument your code manually using the `instrument` command:
 
 ```bash
-typewiz instrument -i myFile.ts
+typewiz instrument -p myFile.ts
 ```
 
-The above command will instrument `myFile.ts` and write the result in place, overwriting the original input file. You can remove the `-i` flag to output the instrumented source code to the standard output, or change it to `-o filename.ts` to write the output to a different file.
+The above command will instrument `myFile.ts` and write the result in place, overwriting the original input file. You can remove the `-p` flag to output the instrumented source code to the standard output, or change it to `-o filename.ts` to write the output to a different file.
 
 ### Apply discovered types
 
