@@ -1,6 +1,6 @@
 {
   "name": "typewiz-node",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "bin": {
     "typewiz-node": "dist/typewiz-node.js"
   },

@@ -1,6 +1,6 @@
 {
   "name": "typewiz",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/cli.js",
   "bin": "dist/cli.js",
   "typings": "dist/cli.d.ts",
