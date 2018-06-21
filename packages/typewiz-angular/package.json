@@ -1,0 +1,23 @@
+{
+  "name": "typewiz-angular",
+  "version": "1.1.0-1",
+  "main": "dist/patch-angular.js",
+  "typings": "dist/patch-angular.d.ts",
+  "repository": "https://github.com/urish/typewiz",
+  "author": "Uri Shaked <uri@urishaked.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "lint": "tslint -p .",
+    "prepublish": "yarn build"
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">= 6.4.0"
+  },
+  "dependencies": {
+    "@phenomnomnominal/tsquery": "^2.0.0-beta.4",
+    "typewiz-core": "^1.0.2"
+  },
+  "devDependencies": {}
+}
