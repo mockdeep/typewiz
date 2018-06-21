@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+import { IExtraOptions, IInstrumentOptions } from './instrument';
 
 const declaration = `
     declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;
@@ -42,70 +43,244 @@ function updateMethod(node: ts.MethodDeclaration, instrumentStatements: Readonly
     );
 }
 
-export function visitorFactory(ctx: ts.TransformationContext, source: ts.SourceFile) {
-    const visitor: ts.Visitor = (node: ts.Node): ts.Node => {
+function updateArrow(node: ts.ArrowFunction, instrumentStatements: ReadonlyArray<ts.Statement>) {
+    const oldBody = ts.isBlock(node.body) ? node.body.statements : [ts.createStatement(node.body)];
+    return ts.updateArrowFunction(
+        node,
+        node.modifiers,
+        node.typeParameters,
+        node.parameters,
+        node.type,
+        ts.createBlock([...instrumentStatements, ...oldBody]),
+    );
+}
+
+function hasParensAroundArguments(node: ts.FunctionLike) {
+    if (ts.isArrowFunction(node)) {
+        return (
+            node.parameters.length !== 1 ||
+            node
+                .getText()
+                .substr(0, node.equalsGreaterThanToken.getStart() - node.getStart())
+                .includes('(')
+        );
+    } else {
+        return true;
+    }
+}
+
+function isRequireContextExpression(node: ts.Expression) {
+    return (
+        ts.isPropertyAccessExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === 'require' &&
+        ts.isIdentifier(node.name) &&
+        node.name.text === 'context'
+    );
+}
+
+function needsThisInstrumentation(
+    node: ts.FunctionDeclaration | ts.ArrowFunction | ts.MethodDeclaration,
+    semanticDiagnostics?: ReadonlyArray<ts.Diagnostic>,
+) {
+    return (
+        semanticDiagnostics &&
+        semanticDiagnostics.find((diagnostic) => {
+            if (
+                diagnostic.code === 2683 &&
+                diagnostic.file &&
+                diagnostic.file.fileName === node.getSourceFile().fileName &&
+                diagnostic.start
+            ) {
+                if (node.body && ts.isBlock(node.body)) {
+                    const body = node.body as ts.FunctionBody;
+                    return (
+                        body.statements.find((statement) => {
+                            return (
+                                diagnostic.start !== undefined &&
+                                statement.pos <= diagnostic.start &&
+                                diagnostic.start <= statement.end
+                            );
+                        }) !== undefined
+                    );
+                } else {
+                    const body = node.body as ts.Expression;
+                    return body.pos <= diagnostic.start && diagnostic.start <= body.end;
+                }
+            }
+            return false;
+        }) !== undefined
+    );
+}
+
+function createTwizInstrumentStatement(name: string, fileOffset: number, filename: string, opts: IExtraOptions) {
+    return ts.createStatement(
+        ts.createCall(
+            ts.createIdentifier('$_$twiz'),
+            [],
+            [
+                ts.createLiteral(name),
+                ts.createIdentifier(name),
+                ts.createNumericLiteral(fileOffset.toString()),
+                ts.createLiteral(filename),
+                ts.createLiteral(JSON.stringify(opts)),
+            ],
+        ),
+    );
+}
+
+function visitorFactory(
+    ctx: ts.TransformationContext,
+    source: ts.SourceFile,
+    options: IInstrumentOptions,
+    semanticDiagnostics?: ReadonlyArray<ts.Diagnostic>,
+) {
+    const visitor: ts.Visitor = (originalNode: ts.Node): ts.Node | ts.Node[] => {
+        const node = ts.visitEachChild(originalNode, visitor, ctx);
+
         if (ts.isSourceFile(node)) {
-            return ts.updateSourceFileNode(node, [
-                ...getDeclarationStatements(),
-                ...ts.visitEachChild(node, visitor, ctx).statements,
-            ]);
+            return ts.updateSourceFileNode(node, [...getDeclarationStatements(), ...node.statements]);
         }
-        if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) {
+
+        const isArrow = ts.isArrowFunction(node);
+        if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
             const instrumentStatements: ts.Statement[] = [];
+            if (options.instrumentImplicitThis && needsThisInstrumentation(node, semanticDiagnostics)) {
+                const opts: IExtraOptions = { thisType: true };
+                if (node.parameters.length > 0) {
+                    opts.thisNeedsComma = true;
+                }
+
+                instrumentStatements.push(
+                    createTwizInstrumentStatement('this', node.parameters.pos, source.fileName, opts),
+                );
+            }
+
             for (const param of node.parameters) {
                 if (!param.type && !param.initializer && node.body) {
                     const typeInsertionPos = param.name.getEnd() + (param.questionToken ? 1 : 0);
-                    // const opts: IExtraOptions = {};
-                    // if (isArrow) {
-                    //     opts.arrow = true;
-                    // }
-                    // if (!hasParensAroundArguments(node)) {
-                    //     opts.parens = [node.parameters[0].getStart(), node.parameters[0].getEnd()];
-                    // }
+                    const opts: IExtraOptions = {};
+                    if (isArrow) {
+                        opts.arrow = true;
+                    }
+                    if (!hasParensAroundArguments(node)) {
+                        opts.parens = [node.parameters[0].getStart(), node.parameters[0].getEnd()];
+                    }
                     instrumentStatements.push(
-                        ts.createStatement(
-                            ts.createCall(
-                                ts.createIdentifier('$_$twiz'),
-                                [],
-                                [
-                                    ts.createLiteral(param.name.getText()),
-                                    ts.createIdentifier(param.name.getText()),
-                                    ts.createNumericLiteral(typeInsertionPos.toString()),
-                                    ts.createLiteral(source.fileName),
-                                    ts.createObjectLiteral(), // TODO: opts
-                                ],
-                            ),
-                        ),
+                        createTwizInstrumentStatement(param.name.getText(), typeInsertionPos, source.fileName, opts),
                     );
                 }
             }
             if (ts.isFunctionDeclaration(node)) {
-                return ts.visitEachChild(updateFunction(node, instrumentStatements), visitor, ctx);
+                return updateFunction(node, instrumentStatements);
             }
             if (ts.isMethodDeclaration(node)) {
-                return ts.visitEachChild(updateMethod(node, instrumentStatements), visitor, ctx);
+                return updateMethod(node, instrumentStatements);
+            }
+            if (ts.isArrowFunction(node)) {
+                return updateArrow(node, instrumentStatements);
             }
         }
 
-        return ts.visitEachChild(node, visitor, ctx);
+        if (options.instrumentCallExpressions && ts.isCallExpression(node) && !isRequireContextExpression(node)) {
+            const newArguments = [];
+            for (const arg of node.arguments) {
+                if (!ts.isStringLiteral(arg) && !ts.isNumericLiteral(arg) && !ts.isSpreadElement(arg)) {
+                    newArguments.push(
+                        ts.createCall(
+                            ts.createPropertyAccess(ts.createIdentifier('$_$twiz'), ts.createIdentifier('track')),
+                            undefined,
+                            [
+                                arg,
+                                ts.createLiteral(source.fileName),
+                                ts.createNumericLiteral(arg.getStart().toString()),
+                            ],
+                        ),
+                    );
+                } else {
+                    newArguments.push(arg);
+                }
+            }
+
+            return ts.updateCall(node, node.expression, node.typeArguments, newArguments);
+        }
+
+        if (
+            ts.isPropertyDeclaration(node) &&
+            ts.isIdentifier(node.name) &&
+            !node.type &&
+            !node.initializer &&
+            !node.decorators
+        ) {
+            const privatePropName = '_twiz_private_' + node.name.text;
+            const typeInsertionPos = node.name.getEnd() + (node.questionToken ? 1 : 0);
+            return [
+                //  dummy property
+                ts.updateProperty(
+                    node,
+                    undefined,
+                    [ts.createToken(ts.SyntaxKind.PrivateKeyword)],
+                    privatePropName,
+                    node.questionToken,
+                    node.type,
+                    node.initializer,
+                ),
+
+                // getter
+                ts.createGetAccessor(
+                    node.decorators,
+                    undefined,
+                    node.name,
+                    [],
+                    node.type,
+                    ts.createBlock([ts.createReturn(ts.createPropertyAccess(ts.createThis(), privatePropName))]),
+                ),
+
+                // setter
+                ts.createSetAccessor(
+                    undefined,
+                    undefined,
+                    node.name,
+                    [
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
+                            node.name.text,
+                            node.type,
+                            ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+                        ),
+                    ],
+                    ts.createBlock([
+                        createTwizInstrumentStatement(node.name.text, typeInsertionPos, source.fileName, {}),
+                        // assign value to privatePropName
+                        ts.createStatement(
+                            ts.createAssignment(
+                                ts.createPropertyAccess(ts.createThis(), privatePropName),
+                                ts.createIdentifier(node.name.text),
+                            ),
+                        ),
+                    ]),
+                ),
+            ];
+        }
+
+        return node;
     };
 
     return visitor;
 }
 
-export function transformer() {
+export function typewizTransformer(options: IInstrumentOptions, program?: ts.Program) {
     return (ctx: ts.TransformationContext): ts.Transformer<ts.SourceFile> => {
-        return (source: ts.SourceFile) => ts.visitNode(source, visitorFactory(ctx, source));
+        return (source: ts.SourceFile) => {
+            const semanticDiagnostics =
+                options.instrumentImplicitThis && program ? program.getSemanticDiagnostics(source) : undefined;
+            return ts.visitNode(source, visitorFactory(ctx, source, options, semanticDiagnostics));
+        };
     };
 }
 
-export function transformSourceFile(sourceFile: ts.SourceFile) {
-    return ts.transform(sourceFile, [transformer()]).transformed[0];
-}
-
-export function transformSourceCode(sourceText: string, fileName: string) {
-    const sourceFile = ts.createSourceFile(fileName, sourceText, ts.ScriptTarget.Latest, true);
-    const transformed = transformSourceFile(sourceFile);
-    const printer: ts.Printer = ts.createPrinter();
-    return printer.printFile(transformed);
+export function transformSourceFile(sourceFile: ts.SourceFile, options: IInstrumentOptions = {}, program?: ts.Program) {
+    return ts.transform(sourceFile, [typewizTransformer(options, program)]).transformed[0];
 }

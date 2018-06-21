@@ -51,7 +51,7 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
 
     if (mockFs.writeFileSync.mock.calls.length) {
         expect(mockFs.writeFileSync).toHaveBeenCalledTimes(1);
-        expect(mockFs.writeFileSync).toHaveBeenCalledWith('c:\\test.ts', expect.any(String));
+        expect(mockFs.writeFileSync).toHaveBeenCalledWith('c:/test.ts', expect.any(String));
         return mockFs.writeFileSync.mock.calls[0][1];
     } else {
         return null;
