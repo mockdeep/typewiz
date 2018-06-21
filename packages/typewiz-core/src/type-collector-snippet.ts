@@ -120,7 +120,8 @@ function escapeSpecialKey(key: string) {
 const logs: { [key: string]: Set<string> } = {};
 const trackedObjects = new WeakMap<object, ISourceLocation>();
 
-export function $_$twiz(name: string, value: any, pos: number, filename: string, opts: ICollectedTypeInfo) {
+export function $_$twiz(name: string, value: any, pos: number, filename: string, optsJson: string) {
+    const opts = JSON.parse(optsJson) as ICollectedTypeInfo;
     const objectDeclaration = trackedObjects.get(value);
     const index = JSON.stringify({ filename, pos, opts } as IKey);
     try {

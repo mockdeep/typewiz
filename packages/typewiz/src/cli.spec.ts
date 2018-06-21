@@ -38,7 +38,7 @@ describe('typewiz CLI', () => {
             'should instrument the given source file',
             async () => {
                 const output = await runCli(['instrument', path.join(__dirname, '../fixtures/instrument-test.ts')]);
-                expect(output.trim()).toContain('function f(x) {$_$twiz(');
+                expect(output.trim()).toContain('function f(x) { $_$twiz(');
             },
             10000,
         );

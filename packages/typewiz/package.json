@@ -1,6 +1,6 @@
 {
   "name": "typewiz",
-  "version": "1.0.3",
+  "version": "1.1.0-0",
   "main": "dist/cli.js",
   "bin": "dist/cli.js",
   "typings": "dist/cli.d.ts",
@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "commander": "^2.15.1",
-    "typewiz-core": "^1.0.2",
+    "typewiz-core": "^1.1.0-0",
     "update-notifier": "^2.4.0"
   },
   "engines": {
