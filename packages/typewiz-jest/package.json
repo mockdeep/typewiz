@@ -1,0 +1,26 @@
+{
+  "name": "typewiz-jest",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": "https://github.com/urish/typewiz",
+  "author": "Uri Shaked <uri@urishaked.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prepublish": "npm run build"
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">= 6.4.0"
+  },
+  "dependencies": {
+    "ts-jest": "^22.4.2",
+    "typewiz-core": "^1.0.0-beta.1",
+    "typewiz-node": "^1.0.0-beta.1"
+  },
+  "devDependencies": {
+    "@types/babel-core": "^6.25.3",
+    "rimraf": "^2.6.2"
+  }
+}
