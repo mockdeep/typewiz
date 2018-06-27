@@ -18,8 +18,10 @@ export async function typewizLoader(this: loader.LoaderContext, source: string |
             getOptions(this) && getOptions(this).typewizConfig
                 ? path.resolve(getOptions(this).typewizConfig)
                 : configurationParser.findConfigFile(process.cwd());
-        promise = configurationParser.parse(typewizConfigPath);
-        await promise;
+        if (typewizConfigPath) {
+            promise = configurationParser.parse(typewizConfigPath);
+            await promise;
+        }
     }
 
     const filename = this.resourcePath;

@@ -25,7 +25,7 @@
     "ts-jest": "^22.4.2",
     "ts-node": "^4.1.0",
     "tslint": "^5.8.0",
-    "typescript": "^2.8.1"
+    "typescript": "^2.9.2"
   },
   "engines": {
     "node": ">= 8.0.0",

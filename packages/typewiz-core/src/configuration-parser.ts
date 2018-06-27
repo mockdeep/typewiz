@@ -19,7 +19,7 @@ export class ConfigurationParser {
     private typewizConfig: ITypewizConfigFile = {};
     private configurationPath?: string;
 
-    public findConfigFile(cwd: string): string {
+    public findConfigFile(cwd: string): string | undefined {
         return ts.findConfigFile(cwd, ts.sys.fileExists, 'typewiz.json');
     }
 

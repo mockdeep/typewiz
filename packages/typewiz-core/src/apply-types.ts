@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-
 import { getProgram, ICompilerOptions } from './compiler-helper';
 import { applyReplacements, Replacement } from './replacement';
 import { ICollectedTypeInfo, ISourceLocation } from './type-collector-snippet';
+import { TypewizError } from './typewiz-error';
 
 export interface IApplyTypesOptions extends ICompilerOptions {
     /**
@@ -28,6 +28,10 @@ function findType(program?: ts.Program, typeName?: string, sourcePos?: ISourceLo
             ts.forEachChild(node, visit);
         }
         const sourceFile = program.getSourceFile(sourceName);
+        if (!sourceFile) {
+            throw new TypewizError(`File not found: ${sourceName}`);
+        }
+
         visit(sourceFile);
         if (foundType && foundType !== 'any') {
             return foundType;

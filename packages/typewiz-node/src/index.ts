@@ -21,7 +21,9 @@ export function register(options: IOptions = {}) {
         options && options.typewizConfig
             ? path.resolve(options.typewizConfig)
             : configurationParser.findConfigFile(process.cwd());
-    configurationParser.parseSync(typewizConfigPath);
+    if (typewizConfigPath) {
+        configurationParser.parseSync(typewizConfigPath);
+    }
 
     nodeRegister.register({ typewizConfig: typewizConfigPath });
     tsnode.register(options.tsNode);
