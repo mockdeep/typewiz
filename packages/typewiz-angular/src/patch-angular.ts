@@ -1,10 +1,20 @@
 import { tsquery } from '@phenomnomnominal/tsquery';
 import * as fs from 'fs';
 import * as path from 'path';
+import { SourceFile } from 'typescript';
 import { applyReplacements, Replacement } from 'typewiz-core/dist/replacement';
+
+function hasRequireStatement(ast: SourceFile, packageName: string) {
+    const matches = tsquery.query(ast, `CallExpression[expression.name=require][arguments.0.text="${packageName}"]`);
+    return matches.length > 0;
+}
 
 export function patchCompiler(compilerSource: string) {
     const compilerAst = tsquery.ast(compilerSource);
+    if (hasRequireStatement(compilerAst, 'typewiz-core')) {
+        return compilerSource;
+    }
+
     const [firstConst] = tsquery.query(compilerAst, 'VariableDeclarationList');
     const [makeTransformersMethod] = tsquery.query(compilerAst, 'MethodDeclaration[name.name=_makeTransformers]>Block');
 
@@ -17,6 +27,10 @@ export function patchCompiler(compilerSource: string) {
 
 export function patchTypescriptModel(source: string) {
     const ast = tsquery.ast(source);
+    if (hasRequireStatement(ast, 'typewiz-webpack')) {
+        return source;
+    }
+
     const [firstConst] = tsquery.query(ast, 'VariableDeclarationList');
     const [pluginListEnd] = tsquery.query(
         ast,
@@ -33,6 +47,10 @@ export function patchTypescriptModel(source: string) {
 
 export function patchDevserver(source: string) {
     const ast = tsquery.ast(source);
+    if (hasRequireStatement(ast, 'typewiz-webpack')) {
+        return source;
+    }
+
     const [firstConst] = tsquery.query(ast, 'VariableDeclarationList');
     const [webpackConfigObject] = tsquery.query(
         ast,

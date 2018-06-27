@@ -1,7 +1,9 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "lib": ["es2017"],
         "rootDir": "src",
+        "target": "es6",
         "outDir": "dist"
     },
     "include": ["src/**/*.ts"]

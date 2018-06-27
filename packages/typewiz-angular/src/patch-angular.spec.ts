@@ -13,6 +13,7 @@ describe('patch-angular', () => {
                     }
                 }
             `;
+
             expect(patchCompiler(input)).toEqual(`
                 "use strict";
                 Object.defineProperty(exports, "__esModule", { value: true });
@@ -24,6 +25,22 @@ const core_1 = require("@angular-devkit/core");
                     }
                 }
             `);
+        });
+
+        it('should not modify the source if it has already been patched', () => {
+            const input = `
+                "use strict";
+                Object.defineProperty(exports, "__esModule", { value: true });
+                const { typewizTransformer } = require('typewiz-core');
+                const core_1 = require("@angular-devkit/core");
+                class AngularCompilerPlugin {
+                    _makeTransformers() {this._transformers.push(typewizTransformer({}));
+                        // foo
+                    }
+                }
+            `;
+
+            expect(patchCompiler(input)).toEqual(input);
         });
     });
 
@@ -55,6 +72,24 @@ const path = require("path");
                     };
                 }
             `);
+        });
+
+        it('should not modify the source if it has already been patched', () => {
+            const input = `
+                "use strict";
+                Object.defineProperty(exports, "__esModule", { value: true });
+                const { TypewizPlugin } = require('typewiz-webpack');
+                const path = require("path");
+                function getNonAotConfig(wco, host) {
+                    const { tsConfigPath } = wco;
+                    return {
+                        module: { rules: [{ test: /\.ts$/, loader: webpackLoader }] },
+                        plugins: [_createAotPlugin(wco, { tsConfigPath, skipCodeGeneration: true }, host), new TypewizPlugin()]
+                    };
+                }
+            `;
+
+            expect(patchTypescriptModel(input)).toEqual(input);
         });
     });
 
@@ -90,6 +125,26 @@ const core_1 = require("@angular-devkit/core");
                     }
                 }
             `);
+        });
+
+        it('should not modify the source if it has already been patched', () => {
+            const input = `
+            "use strict";
+            Object.defineProperty(exports, "__esModule", { value: true });
+            const { typewizCollectorMiddleware } = require('typewiz-webpack');
+            const core_1 = require("@angular-devkit/core");
+            class DevServerBuilder {
+                _buildServerConfig(root, projectRoot, options, browserOptions) {
+                    const systemRoot = core_1.getSystemPath(root);
+                    const servePath = this._buildServePath(options, browserOptions);
+                    const config = {
+                        headers: { 'Access-Control-Allow-Origin': '*' },
+                    before(app) { typewizCollectorMiddleware(app, 'collected-types.json'); },}
+                }
+            }
+        `;
+
+            expect(patchDevserver(input)).toEqual(input);
         });
     });
 });

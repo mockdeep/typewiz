@@ -48,5 +48,8 @@
       "tslint --fix",
       "git add"
     ]
+  },
+  "resolutions": {
+    "source-map": "0.6.1"
   }
 }
