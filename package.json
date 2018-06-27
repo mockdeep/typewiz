@@ -11,7 +11,9 @@
     "test:ci": "yarn run lint && jest --coverage && cat ./coverage/lcov.info | coveralls",
     "test:watch": "jest --watch"
   },
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@types/jest": "^22.0.0",
     "copyfiles": "^1.2.0",
@@ -19,8 +21,8 @@
     "husky": "^0.14.3",
     "jest": "^22.4.3",
     "lerna": "^2.9.1",
-    "lint-staged": "^6.1.0",
-    "prettier": "^1.10.2",
+    "lint-staged": "^7.2.0",
+    "prettier": "^1.13.6",
     "rimraf": "^2.6.2",
     "ts-jest": "^22.4.2",
     "ts-node": "^4.1.0",
@@ -32,10 +34,19 @@
     "yarn": ">= 1.5.1"
   },
   "jest": {
-    "projects": ["<rootDir>/packages/*"]
+    "projects": [
+      "<rootDir>/packages/*"
+    ]
   },
   "lint-staged": {
-    "*.{js,json}": ["prettier --write", "git add"],
-    "*.ts": ["prettier --write", "tslint --fix", "git add"]
+    "*.{js,json}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "tslint --fix",
+      "git add"
+    ]
   }
 }
