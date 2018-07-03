@@ -51,6 +51,7 @@ function updateArrow(node: ts.ArrowFunction, instrumentStatements: ReadonlyArray
         node.typeParameters,
         node.parameters,
         node.type,
+        node.equalsGreaterThanToken,
         ts.createBlock([...instrumentStatements, ...oldBody]),
     );
 }
