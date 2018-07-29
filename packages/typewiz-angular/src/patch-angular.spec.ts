@@ -20,7 +20,7 @@ describe('patch-angular', () => {
                 const { typewizTransformer } = require('typewiz-core');
 const core_1 = require("@angular-devkit/core");
                 class AngularCompilerPlugin {
-                    _makeTransformers() {this._transformers.push(typewizTransformer({}));
+                    _makeTransformers() {if (this._JitMode) { this._transformers.push(typewizTransformer({})); }
                         // foo
                     }
                 }

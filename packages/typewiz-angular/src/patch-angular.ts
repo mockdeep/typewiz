@@ -20,7 +20,10 @@ export function patchCompiler(compilerSource: string) {
 
     const replacements = [
         Replacement.insert(firstConst.getStart(), `const { typewizTransformer } = require('typewiz-core');\n`),
-        Replacement.insert(makeTransformersMethod.getStart() + 1, `this._transformers.push(typewizTransformer({}));`),
+        Replacement.insert(
+            makeTransformersMethod.getStart() + 1,
+            `if (this._JitMode) { this._transformers.push(typewizTransformer({})); }`,
+        ),
     ];
     return applyReplacements(compilerSource, replacements);
 }
