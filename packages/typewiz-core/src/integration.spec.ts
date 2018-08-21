@@ -217,6 +217,26 @@ describe('function parameters', () => {
         `);
     });
 
+    it('should infer type for object literal regular expression', () => {
+        const input = `
+            const greeter = {
+                greet(regex) {
+                    return regex;
+                }
+            }
+            greeter.greet(/goodness squad/i);
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            const greeter = {
+                greet(regex: RegExp) {
+                    return regex;
+                }
+            }
+            greeter.greet(/goodness squad/i);
+        `);
+    });
+
     it('should correctly handle optional parameters', () => {
         const input = `
             function calculate(a, b?) {
