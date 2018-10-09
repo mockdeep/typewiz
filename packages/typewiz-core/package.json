@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "ajv": "^6.4.0",
-    "typescript": "^2.4.2"
+    "typescript": ">=2.4.2 <4.0.0"
   },
   "engines": {
     "node": ">= 8.0.0"
