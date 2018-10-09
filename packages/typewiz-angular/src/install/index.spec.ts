@@ -5,7 +5,7 @@ import * as path from 'path';
 const collectionPath = path.join(__dirname, '../collection.json');
 
 describe('my-full-schematic', () => {
-    it('should install typewiz-webpack and add `prepare` script to package.json', () => {
+    it('should install typewiz-webpack and add `prepare`, script to package.json', () => {
         const runner = new SchematicTestRunner('schematics', collectionPath);
         const inputTree = Tree.empty();
         inputTree.create('package.json', '{}');
@@ -14,10 +14,12 @@ describe('my-full-schematic', () => {
         const packageJson = JSON.parse(tree.readContent('package.json'));
         expect(packageJson).toEqual({
             devDependencies: {
-                'typewiz-webpack': '1.1.0',
+                typewiz: '1.2.0',
+                ['typewiz-webpack']: '1.2.0',
             },
             scripts: {
                 prepare: 'node node_modules/typewiz-angular/dist/cli',
+                ['typewiz:apply-types']: 'typewiz applyTypes collected-types.json',
             },
         });
     });
@@ -37,7 +39,8 @@ describe('my-full-schematic', () => {
 
         const packageJson = JSON.parse(tree.readContent('package.json'));
         expect(packageJson.devDependencies).toEqual({
-            'typewiz-webpack': '1.1.0',
+            typewiz: '1.2.0',
+            ['typewiz-webpack']: '1.2.0',
         });
     });
 
@@ -55,7 +58,7 @@ describe('my-full-schematic', () => {
         const tree = runner.runSchematic('ng-add', {}, inputTree);
 
         const packageJson = JSON.parse(tree.readContent('package.json'));
-        expect(packageJson.scripts).toEqual({
+        expect(packageJson.scripts).toMatchObject({
             prepare: 'npm run build && node node_modules/typewiz-angular/dist/cli',
         });
     });
@@ -74,7 +77,7 @@ describe('my-full-schematic', () => {
         const tree = runner.runSchematic('ng-add', {}, inputTree);
 
         const packageJson = JSON.parse(tree.readContent('package.json'));
-        expect(packageJson.scripts).toEqual({
+        expect(packageJson.scripts).toMatchObject({
             prepare: 'npm run build && node node_modules/typewiz-angular/dist/cli',
         });
     });

@@ -29,10 +29,10 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
-"@phenomnomnominal/tsquery@^2.0.0-beta.4":
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@phenomnomnominal/tsquery/-/tsquery-2.0.0-beta.4.tgz#54d81c3f41530ac55c981d7941b73b6cca9289c5"
-  integrity sha512-10W7DcehluuYXXwG+xjRdi2n0ReTmx1m5mx2sIynFPhf6jiIs/ghnhNv54U11kAH3o0kkFwjN17wu8KxR4rUjg==
+"@phenomnomnominal/tsquery@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@phenomnomnominal/tsquery/-/tsquery-2.1.1.tgz#eb5e7bf0fe95c40c38b17d5f5beb2809a89871dd"
+  integrity sha512-awpB28hmZ8HcW+bEIvjPoSSc7vcCt0Hvh3x6HpBV6P/GB9YIrDukjQUsEZDK5s0BbPPhvJYdWKkubeQbVAwEtA==
   dependencies:
     esquery "^1.0.1"
 
