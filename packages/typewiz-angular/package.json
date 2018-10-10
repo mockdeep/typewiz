@@ -1,6 +1,6 @@
 {
   "name": "typewiz-angular",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/patch-angular.js",
   "typings": "dist/patch-angular.d.ts",
   "repository": "https://github.com/urish/typewiz",
