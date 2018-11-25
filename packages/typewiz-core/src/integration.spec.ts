@@ -501,6 +501,28 @@ describe('regression tests', () => {
             f(obj);
         `);
     });
+
+    it('issue #75: fails typescript parsing when having nested arrow functions', () => {
+        const input = `
+            function doTheThing(cb) {
+                cb([1,2,3]);
+            }
+
+            doTheThing((results) => {
+                results.forEach((result) => console.log(result));
+            });
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            function doTheThing(cb: (results: any) => any) {
+                cb([1,2,3]);
+            }
+
+            doTheThing((results: number[]) => {
+                results.forEach((result: number) => console.log(result));
+            });
+        `);
+    });
 });
 
 describe('apply-types options', () => {

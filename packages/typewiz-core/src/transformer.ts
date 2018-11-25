@@ -57,7 +57,7 @@ function updateArrow(node: ts.ArrowFunction, instrumentStatements: ReadonlyArray
 }
 
 function hasParensAroundArguments(node: ts.FunctionLike) {
-    if (ts.isArrowFunction(node)) {
+    if (ts.isArrowFunction(node) && node.getSourceFile()) {
         return (
             node.parameters.length !== 1 ||
             node
@@ -186,7 +186,12 @@ function visitorFactory(
         if (options.instrumentCallExpressions && ts.isCallExpression(node) && !isRequireContextExpression(node)) {
             const newArguments = [];
             for (const arg of node.arguments) {
-                if (!ts.isStringLiteral(arg) && !ts.isNumericLiteral(arg) && !ts.isSpreadElement(arg)) {
+                if (
+                    node.getSourceFile() &&
+                    !ts.isStringLiteral(arg) &&
+                    !ts.isNumericLiteral(arg) &&
+                    !ts.isSpreadElement(arg)
+                ) {
                     newArguments.push(
                         ts.createCall(
                             ts.createPropertyAccess(ts.createIdentifier('$_$twiz'), ts.createIdentifier('track')),
