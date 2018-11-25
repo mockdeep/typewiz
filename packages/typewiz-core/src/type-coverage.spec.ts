@@ -20,7 +20,7 @@ describe('type-coverage', () => {
                 include: ['test.ts'],
             }),
         });
-        expect(typeCoverage(program)).toEqual({
+        expect(typeCoverage(program!)).toEqual({
             knownTypes: 1,
             percentage: 50,
             totalTypes: 2,
@@ -43,7 +43,7 @@ describe('type-coverage', () => {
                 include: ['test.ts'],
             }),
         });
-        expect(typeCoverage(program)).toEqual({
+        expect(typeCoverage(program!)).toEqual({
             knownTypes: 0,
             percentage: 100,
             totalTypes: 0,
@@ -68,7 +68,7 @@ describe('type-coverage', () => {
                 include: ['test.ts'],
             }),
         });
-        expect(typeCoverage(program)).toEqual({
+        expect(typeCoverage(program!)).toEqual({
             knownTypes: 0,
             percentage: 100,
             totalTypes: 0,

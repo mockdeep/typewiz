@@ -15,18 +15,18 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@types/jest": "^22.0.0",
+    "@types/jest": "^23.3.9",
     "copyfiles": "^1.2.0",
     "coveralls": "^3.0.0",
-    "husky": "^0.14.3",
-    "jest": "^22.4.3",
+    "husky": "^1.2.0",
+    "jest": "^23.6.0",
     "lerna": "^2.9.1",
-    "lint-staged": "^7.2.0",
-    "prettier": "^1.13.6",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.15.2",
     "rimraf": "^2.6.2",
-    "ts-jest": "^22.4.2",
-    "ts-node": "^4.1.0",
-    "tslint": "^5.8.0",
+    "ts-jest": "^23.10.5",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
     "typescript": "^3.1.1"
   },
   "engines": {
