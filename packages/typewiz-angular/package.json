@@ -1,6 +1,6 @@
 {
   "name": "typewiz-angular",
-  "version": "0.1.1",
+  "version": "1.2.1",
   "main": "dist/patch-angular.js",
   "typings": "dist/patch-angular.d.ts",
   "repository": "https://github.com/urish/typewiz",
@@ -22,8 +22,7 @@
     "@angular-devkit/schematics": "^0.6.8",
     "@phenomnomnominal/tsquery": "^2.1.1",
     "typescript": ">= 2.4.2 <4.0.0",
-    "typewiz-core": "^1.2.0"
+    "typewiz-core": "^1.2.1"
   },
-  "schematics": "./dist/collection.json",
-  "devDependencies": {}
+  "schematics": "./dist/collection.json"
 }
