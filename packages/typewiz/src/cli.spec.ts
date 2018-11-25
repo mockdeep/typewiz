@@ -23,24 +23,16 @@ function runCli(args: string[]) {
 
 describe('typewiz CLI', () => {
     describe('coverage', () => {
-        it(
-            'should calculate the type coverage for the given tsconfig.json',
-            async () => {
-                const output = await runCli(['coverage', path.join(__dirname, '../fixtures/tsconfig.json')]);
-                expect(output.trim()).toBe(`5 of 7 types are known.\n` + `Your type coverage is: 71.43%`);
-            },
-            10000,
-        );
+        it('should calculate the type coverage for the given tsconfig.json', async () => {
+            const output = await runCli(['coverage', path.join(__dirname, '../fixtures/tsconfig.json')]);
+            expect(output.trim()).toBe(`5 of 7 types are known.\n` + `Your type coverage is: 71.43%`);
+        }, 10000);
     });
 
     describe('instrument', () => {
-        it(
-            'should instrument the given source file',
-            async () => {
-                const output = await runCli(['instrument', path.join(__dirname, '../fixtures/instrument-test.ts')]);
-                expect(output.trim()).toContain('function f(x) { $_$twiz(');
-            },
-            10000,
-        );
+        it('should instrument the given source file', async () => {
+            const output = await runCli(['instrument', path.join(__dirname, '../fixtures/instrument-test.ts')]);
+            expect(output.trim()).toContain('function f(x) { $_$twiz(');
+        }, 10000);
     });
 });

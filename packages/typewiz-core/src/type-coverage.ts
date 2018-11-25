@@ -32,7 +32,7 @@ export function typeCoverage(program: ts.Program) {
     }
 
     if (result.totalTypes > 0) {
-        result.percentage = 100 * result.knownTypes / result.totalTypes;
+        result.percentage = (100 * result.knownTypes) / result.totalTypes;
     }
 
     return result;
