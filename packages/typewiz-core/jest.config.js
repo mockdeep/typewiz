@@ -9,7 +9,7 @@ module.exports = {
     collectCoverageFrom: ['src/**.ts', '!src/**.spec.ts'],
     globals: {
         'ts-jest': {
-            tsConfigFile: path.join(__dirname, 'tsconfig.json'),
+            tsConfig: path.join(__dirname, 'tsconfig.json'),
         },
     },
 };
