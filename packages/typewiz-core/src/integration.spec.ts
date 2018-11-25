@@ -177,6 +177,11 @@ describe('function parameters', () => {
         expect(typeWiz(input)).toBe(`(async (x: number)=>x+5)(10)`);
     });
 
+    it('should correctly transform arrow functions that return arrow functions', () => {
+        const input = `(x=>y=>x+y)(10)(5)`;
+        expect(typeWiz(input)).toBe(`((x: number)=>(y: number)=>x+y)(10)(5)`);
+    });
+
     it('should infer `string` type for class method', () => {
         const input = `
             class Greeter {

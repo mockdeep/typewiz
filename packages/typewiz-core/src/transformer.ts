@@ -43,8 +43,11 @@ function updateMethod(node: ts.MethodDeclaration, instrumentStatements: Readonly
     );
 }
 
-function updateArrow(node: ts.ArrowFunction, instrumentStatements: ReadonlyArray<ts.Statement>) {
-    const oldBody = ts.isBlock(node.body) ? node.body.statements : [ts.createStatement(node.body)];
+function updateArrow(node: ts.ArrowFunction, instrumentStatements: ReadonlyArray<ts.ExpressionStatement>) {
+    const newBody = ts.isBlock(node.body)
+        ? ts.createBlock([...instrumentStatements, ...node.body.statements])
+        : ts.createCommaList([...instrumentStatements.map((s) => s.expression), node.body]);
+
     return ts.updateArrowFunction(
         node,
         node.modifiers,
@@ -52,19 +55,14 @@ function updateArrow(node: ts.ArrowFunction, instrumentStatements: ReadonlyArray
         node.parameters,
         node.type,
         node.equalsGreaterThanToken,
-        ts.createBlock([...instrumentStatements, ...oldBody]),
+        newBody,
     );
 }
 
 function hasParensAroundArguments(node: ts.FunctionLike) {
-    if (ts.isArrowFunction(node) && node.getSourceFile()) {
-        return (
-            node.parameters.length !== 1 ||
-            node
-                .getText()
-                .substr(0, node.equalsGreaterThanToken.getStart() - node.getStart())
-                .includes('(')
-        );
+    if (ts.isArrowFunction(node)) {
+        const parameterStartPos = node.modifiers ? Math.max(...node.modifiers.map((mod) => mod.end)) : node.pos;
+        return node.parameters.length !== 1 || node.parameters[0].pos !== parameterStartPos;
     } else {
         return true;
     }
@@ -145,7 +143,7 @@ function visitorFactory(
 
         const isArrow = ts.isArrowFunction(node);
         if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
-            const instrumentStatements: ts.Statement[] = [];
+            const instrumentStatements: ts.ExpressionStatement[] = [];
             if (options.instrumentImplicitThis && needsThisInstrumentation(node, semanticDiagnostics)) {
                 const opts: IExtraOptions = { thisType: true };
                 if (node.parameters.length > 0) {
