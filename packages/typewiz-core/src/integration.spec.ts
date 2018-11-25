@@ -34,7 +34,11 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     } as IInstrumentOptions);
 
     // Step 2: compile + add the type collector
-    const compiled = typeCheck ? transpileSource(instrumented, 'test.ts') : ts.transpile(instrumented);
+    const compiled = typeCheck
+        ? transpileSource(instrumented, 'test.ts')
+        : ts.transpile(instrumented, {
+              target: ts.ScriptTarget.ES2015,
+          });
 
     // Step 3: evaluate the code, and collect the runtime type information
     const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + ';$_$twiz.get();');
