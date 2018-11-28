@@ -128,6 +128,30 @@ function createTwizInstrumentStatement(name: string, fileOffset: number, filenam
     );
 }
 
+function removeInitializerFromBindingElement(node: ts.BindingElement) {
+    return ts.updateBindingElement(node, node.dotDotDotToken, node.propertyName, node.name, undefined);
+}
+
+function removeInitializerFromBindingName(node: ts.BindingName) {
+    if (ts.isObjectBindingPattern(node)) {
+        return ts.updateObjectBindingPattern(node, node.elements.map(removeInitializerFromBindingElement));
+    } else if (ts.isArrayBindingPattern(node)) {
+        return ts.updateArrayBindingPattern(node, node.elements.map(removeInitializerFromBindingElement));
+    } else {
+        return node;
+    }
+}
+
+function getParameterName(param: ts.ParameterDeclaration) {
+    const { name } = param;
+    if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
+        const cleanName = removeInitializerFromBindingName(name);
+        return ts.createPrinter().printNode(ts.EmitHint.Unspecified, cleanName, param.getSourceFile());
+    } else {
+        return param.name.getText();
+    }
+}
+
 function visitorFactory(
     ctx: ts.TransformationContext,
     source: ts.SourceFile,
@@ -165,8 +189,9 @@ function visitorFactory(
                     if (!hasParensAroundArguments(node)) {
                         opts.parens = [node.parameters[0].getStart(), node.parameters[0].getEnd()];
                     }
+                    const parameterName = getParameterName(param);
                     instrumentStatements.push(
-                        createTwizInstrumentStatement(param.name.getText(), typeInsertionPos, source.fileName, opts),
+                        createTwizInstrumentStatement(parameterName, typeInsertionPos, source.fileName, opts),
                     );
                 }
             }

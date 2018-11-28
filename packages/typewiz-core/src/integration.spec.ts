@@ -532,6 +532,22 @@ describe('regression tests', () => {
             });
         `);
     });
+
+    it('issue #83: invalid code produced for parameter destructuring with default values', () => {
+        const input = `
+            function greet({ who = "" }) {
+                return 'Hello, ' + who;
+            }
+            greet({who: 'world'});
+        `;
+
+        expect(typeWiz(input)).toBe(`
+            function greet({ who = "" }: { who: string }) {
+                return 'Hello, ' + who;
+            }
+            greet({who: 'world'});
+        `);
+    });
 });
 
 describe('apply-types options', () => {
