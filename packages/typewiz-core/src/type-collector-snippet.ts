@@ -47,42 +47,10 @@ export function getTypeName(value: any, nest = 0): string | null {
             return `Array<${itemTypes.sort().join('|')}>`;
         }
         if (value instanceof Function) {
-            let argsStr: string = value.toString().split('=>')[0];
-
-            // make sure argsStr is in a form of (arg1,arg2) for the following cases
-            // fn = a => 3
-            // fn = (a) => 3
-            // function fn(a) { return 3 }
-
-            argsStr = argsStr.includes('(') ? (argsStr.match(/\(.*?\)/gi) || '()')[0] : `(${argsStr})`;
-            const args: string[] = argsStr
-                .replace(/[()]/g, '')
-                .split(',')
-                .filter((e: string) => e !== '');
-
-            const typedArgs = args.map((arg) => {
-                let [name] = arg.split('=');
-                name = name.trim();
-
-                if (name.includes('[')) {
-                    const nakedName = name.replace(/\[|\]/gi, '').trim();
-                    name = `${nakedName}Array`;
-                    return `${name}: any`;
-                }
-                if (name.includes('{')) {
-                    const nakedName = name.replace(/\{|\}/gi, '').trim();
-                    name = `${nakedName}Object: {${nakedName}: any}`;
-                    return `${name}`;
-                }
-                if (name.includes('...')) {
-                    name = `${name}Array: any[]`;
-                    return `${name}`;
-                }
-
-                return `${name}: any`;
-            });
-
-            return `(${typedArgs}) => any`;
+            const result = getFunctionType(value);
+            if (result) {
+                return result;
+            }
         }
         if (value.constructor && value.constructor.name) {
             const { name } = value.constructor;
@@ -99,6 +67,51 @@ export function getTypeName(value: any, nest = 0): string | null {
             typeNameRunning = false;
         }
     }
+}
+
+function getFunctionType(value: any): string | undefined {
+    let argsStr: string = '';
+    try {
+        argsStr = value.toString().split('=>')[0];
+    } catch (err) {
+        // toString() could throw an error
+        return 'Function';
+    }
+
+    // make sure argsStr is in a form of (arg1,arg2) for the following cases
+    // fn = a => 3
+    // fn = (a) => 3
+    // function fn(a) { return 3 }
+
+    argsStr = argsStr.includes('(') ? (argsStr.match(/\(.*?\)/gi) || '()')[0] : `(${argsStr})`;
+    const args: string[] = argsStr
+        .replace(/[()]/g, '')
+        .split(',')
+        .filter((e: string) => e !== '');
+
+    const typedArgs = args.map((arg) => {
+        let [name] = arg.split('=');
+        name = name.trim();
+
+        if (name.includes('[')) {
+            const nakedName = name.replace(/\[|\]/gi, '').trim();
+            name = `${nakedName}Array`;
+            return `${name}: any`;
+        }
+        if (name.includes('{')) {
+            const nakedName = name.replace(/\{|\}/gi, '').trim();
+            name = `${nakedName}Object: {${nakedName}: any}`;
+            return `${name}`;
+        }
+        if (name.includes('...')) {
+            name = `${name}Array: any[]`;
+            return `${name}`;
+        }
+
+        return `${name}: any`;
+    });
+
+    return `(${typedArgs}) => any`;
 }
 
 function getObjectTypes(obj: any, nest: number): string {

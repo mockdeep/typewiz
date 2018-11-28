@@ -141,6 +141,17 @@ describe('type-collector', () => {
                 );
             });
 
+            it('should gracefully deal with toString() method throwing an error', () => {
+                function f() {
+                    /* noop */
+                }
+                f.toString = () => {
+                    throw new Error('Dont call this method');
+                };
+
+                expect($_$twiz.typeName(f)).toBe('Function');
+            });
+
             /* tslint:enable:only-arrow-functions*/
         });
 
