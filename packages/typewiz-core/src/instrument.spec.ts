@@ -45,6 +45,12 @@ describe('instrument', () => {
         );
     });
 
+    it('should not instrument a function declaration that has no a body', () => {
+        // See issue #85 for details
+        const input = `function foo(n: number): void;`;
+        expect(instrument(input, 'test.ts')).toContain(astPrettyPrint('function foo(n: number): void;'));
+    });
+
     describe('instrumentCallExpressions', () => {
         it('should instrument function calls', () => {
             const input = `foo(bar)`;

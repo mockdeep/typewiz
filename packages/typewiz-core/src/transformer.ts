@@ -166,7 +166,7 @@ function visitorFactory(
         }
 
         const isArrow = ts.isArrowFunction(node);
-        if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
+        if ((ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) && node.body) {
             const instrumentStatements: ts.ExpressionStatement[] = [];
             if (options.instrumentImplicitThis && needsThisInstrumentation(node, semanticDiagnostics)) {
                 const opts: IExtraOptions = { thisType: true };
