@@ -1,9 +1,10 @@
 import * as fs from 'fs';
+import md5 = require('md5');
 import * as path from 'path';
 import * as ts from 'typescript';
 import { getProgram, ICompilerOptions } from './compiler-helper';
 import { applyReplacements, Replacement } from './replacement';
-import { ICollectedTypeInfo, ISourceLocation } from './type-collector-snippet';
+import { ICollectedTypeInfo, IFileTypeInfo, ISourceLocationAndType } from './type-collector-snippet';
 import { TypewizError } from './typewiz-error';
 
 export interface IApplyTypesOptions extends ICompilerOptions {
@@ -15,9 +16,11 @@ export interface IApplyTypesOptions extends ICompilerOptions {
     prefix?: string;
 }
 
-function findType(program?: ts.Program, typeName?: string, sourcePos?: ISourceLocation) {
-    if (program && sourcePos) {
-        const [sourceName, sourceOffset] = sourcePos;
+function findType(program: ts.Program | undefined, typeInfo: string | ISourceLocationAndType) {
+    const typeName = typeof typeInfo === 'string' ? typeInfo : typeInfo[2];
+    const sourceName = typeof typeInfo !== 'string' ? typeInfo[0] : null;
+    const sourceOffset = typeof typeInfo !== 'string' ? typeInfo[1] : null;
+    if (program && sourceName) {
         const typeChecker = program.getTypeChecker();
         let foundType: string | null = null;
         function visit(node: ts.Node) {
@@ -42,16 +45,23 @@ function findType(program?: ts.Program, typeName?: string, sourcePos?: ISourceLo
 
 export function applyTypesToFile(
     source: string,
-    typeInfo: ICollectedTypeInfo,
+    fileTypes: IFileTypeInfo,
     options: IApplyTypesOptions,
     program?: ts.Program,
 ) {
     const replacements = [];
     const prefix = options.prefix || '';
-    for (const [, pos, types, opts] of typeInfo) {
-        const isOptional = source[pos - 1] === '?';
+    let hadChanges = false;
+    for (const key of Object.keys(fileTypes)) {
+        if (!/^\d+$/.test(key)) {
+            continue;
+        }
+        hadChanges = true;
+        const offset = parseInt(key, 10);
+        const isOptional = source[offset - 1] === '?';
+        const { types, parens, thisNeedsComma, thisType } = fileTypes[offset];
         let sortedTypes = types
-            .map(([name, sourcePos]) => findType(program, name, sourcePos))
+            .map((type) => findType(program, type))
             .filter((t) => t)
             .sort();
         if (isOptional) {
@@ -63,34 +73,33 @@ export function applyTypesToFile(
 
         let thisPrefix = '';
         let suffix = '';
-        if (opts && opts.parens) {
-            replacements.push(Replacement.insert(opts.parens[0], '('));
+        if (parens) {
+            replacements.push(Replacement.insert(parens[0], '('));
             suffix = ')';
         }
-        if (opts && opts.thisNeedsComma) {
+        if (thisNeedsComma) {
             suffix = ', ';
         }
-        if (opts && opts.thisType) {
+        if (thisType) {
             thisPrefix = 'this';
         }
-        replacements.push(Replacement.insert(pos, thisPrefix + ': ' + prefix + sortedTypes.join('|') + suffix));
+        replacements.push(Replacement.insert(offset, thisPrefix + ': ' + prefix + sortedTypes.join('|') + suffix));
     }
-    return applyReplacements(source, replacements);
+    return hadChanges ? applyReplacements(source, replacements) : null;
 }
 
 export function applyTypes(typeInfo: ICollectedTypeInfo, options: IApplyTypesOptions = {}) {
-    const files: { [key: string]: typeof typeInfo } = {};
     const program: ts.Program | undefined = getProgram(options);
-    for (const entry of typeInfo) {
-        const file = entry[0];
-        if (!files[file]) {
-            files[file] = [];
-        }
-        files[file].push(entry);
-    }
-    for (const file of Object.keys(files)) {
+    for (const file of Object.keys(typeInfo)) {
+        const fileInfo = typeInfo[file];
         const filePath = options.rootDir ? path.join(options.rootDir, file) : file;
         const source = fs.readFileSync(filePath, 'utf-8');
-        fs.writeFileSync(filePath, applyTypesToFile(source, files[file], options, program));
+        if (md5(source) !== fileInfo.hash) {
+            throw new Error('Hash mismatch! Source file has changed since type information was collected');
+        }
+        const newContent = applyTypesToFile(source, fileInfo, options, program);
+        if (newContent) {
+            fs.writeFileSync(filePath, newContent);
+        }
     }
 }
