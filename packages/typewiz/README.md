@@ -38,7 +38,7 @@ This package provides a Command Line Interface (CLI) for working working with Ty
 
 Install the TypeWiz CLI by running the following command:
 
-    yarn global add typewiz
+    yarn global add typewiz --ignore-engines
 
 or
 
