@@ -129,10 +129,16 @@ function createTwizInstrumentStatement(name: string, fileOffset: number, filenam
 }
 
 function removeInitializerFromBindingElement(node: ts.BindingElement) {
-    return ts.updateBindingElement(node, node.dotDotDotToken, node.propertyName, node.name, undefined);
+    return ts.updateBindingElement(
+        node,
+        node.dotDotDotToken,
+        node.propertyName,
+        removeInitializerFromBindingName(node.name),
+        undefined,
+    );
 }
 
-function removeInitializerFromBindingName(node: ts.BindingName) {
+function removeInitializerFromBindingName(node: ts.BindingName): ts.BindingName {
     if (ts.isObjectBindingPattern(node)) {
         return ts.updateObjectBindingPattern(node, node.elements.map(removeInitializerFromBindingElement));
     } else if (ts.isArrayBindingPattern(node)) {

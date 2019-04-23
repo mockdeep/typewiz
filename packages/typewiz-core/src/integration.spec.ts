@@ -43,7 +43,7 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     // Step 3: evaluate the code, and collect the runtime type information
     const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + ';$_$twiz.get();');
 
-    // Step 4: put the collected typed into the code
+    // Step 4: put the collected types into the code
     mockFs.readFileSync.mockReturnValue(input);
     mockFs.writeFileSync.mockImplementationOnce(() => 0);
 
@@ -547,6 +547,11 @@ describe('regression tests', () => {
             }
             greet({who: 'world'});
         `);
+    });
+
+    it('issue #93: invalid code produced for nested destructuring with default values', () => {
+        const input = `const fn =  ({ foo: { bar = '' }}) => 0;`;
+        expect(typeWiz(input)).toBe(null);
     });
 });
 
