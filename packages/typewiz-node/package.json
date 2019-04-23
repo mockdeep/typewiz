@@ -1,6 +1,6 @@
 {
   "name": "typewiz-node",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "bin": {
     "typewiz-node": "dist/typewiz-node.js"
   },
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ts-node": "^5.0.1",
-    "typewiz-core": "^1.2.3",
+    "typewiz-core": "^1.2.4",
     "util.promisify": "^1.0.0"
   },
   "devDependencies": {
