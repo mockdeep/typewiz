@@ -69,7 +69,7 @@ export function getTypeName(value: any, nest = 0): string | null {
     }
 }
 
-function getFunctionType(value: any): string | undefined {
+function getFunctionType(value: any): string {
     let argsStr: string = '';
     try {
         argsStr = value.toString().split('=>')[0];
