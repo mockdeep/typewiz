@@ -1,3 +1,11 @@
+# Deprecation Notice
+
+As of 2021, I'm no longer working on TypeWiz. If anyone is interested in forking and developing it, you are more than welcome!
+
+In case you are wondering, nowadays I work on an Wokwi, [an online Arduino & electronics simulation platform](https://wokwi.com).
+
+--
+
 ## TypeWiz
 Automatically discover and add missing types in your TypeScript code.
 
