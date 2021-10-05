@@ -1,11 +1,12 @@
+import * as md5 from 'md5';
 import * as ts from 'typescript';
 import { IExtraOptions, IInstrumentOptions } from './instrument';
 
 const declaration = `
-    declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void;
+    declare function $_$twiz(value: any, pos: number, filename: string, opts: any, hash: string): void;
     declare namespace $_$twiz {
-        function track<T>(value: T, filename: string, offset: number): T;
-        function track(value: any, filename: string, offset: number): any;
+        function track<T>(value: T, filename: string, offset: number, hash: string): T;
+        function track(value: any, filename: string, offset: number, hash: string): any;
     }
 `;
 
@@ -112,17 +113,23 @@ function needsThisInstrumentation(
     );
 }
 
-function createTwizInstrumentStatement(name: string, fileOffset: number, filename: string, opts: IExtraOptions) {
+function createTwizInstrumentStatement(
+    name: string,
+    fileOffset: number,
+    filename: string,
+    opts: IExtraOptions,
+    hash: string,
+) {
     return ts.createStatement(
         ts.createCall(
             ts.createIdentifier('$_$twiz'),
             [],
             [
-                ts.createLiteral(name),
                 ts.createIdentifier(name),
                 ts.createNumericLiteral(fileOffset.toString()),
                 ts.createLiteral(filename),
                 ts.createLiteral(JSON.stringify(opts)),
+                ts.createLiteral(hash),
             ],
         ),
     );
@@ -164,6 +171,7 @@ function visitorFactory(
     options: IInstrumentOptions,
     semanticDiagnostics?: ReadonlyArray<ts.Diagnostic>,
 ) {
+    const hash = md5(source.getFullText());
     const visitor: ts.Visitor = (originalNode: ts.Node): ts.Node | ts.Node[] => {
         const node = ts.visitEachChild(originalNode, visitor, ctx);
 
@@ -181,7 +189,7 @@ function visitorFactory(
                 }
 
                 instrumentStatements.push(
-                    createTwizInstrumentStatement('this', node.parameters.pos, source.fileName, opts),
+                    createTwizInstrumentStatement('this', node.parameters.pos, source.fileName, opts, hash),
                 );
             }
 
@@ -197,7 +205,7 @@ function visitorFactory(
                     }
                     const parameterName = getParameterName(param);
                     instrumentStatements.push(
-                        createTwizInstrumentStatement(parameterName, typeInsertionPos, source.fileName, opts),
+                        createTwizInstrumentStatement(parameterName, typeInsertionPos, source.fileName, opts, hash),
                     );
                 }
             }
@@ -229,6 +237,7 @@ function visitorFactory(
                                 arg,
                                 ts.createLiteral(source.fileName),
                                 ts.createNumericLiteral(arg.getStart().toString()),
+                                ts.createLiteral(hash),
                             ],
                         ),
                     );
@@ -287,7 +296,7 @@ function visitorFactory(
                         ),
                     ],
                     ts.createBlock([
-                        createTwizInstrumentStatement(node.name.text, typeInsertionPos, source.fileName, {}),
+                        createTwizInstrumentStatement(node.name.text, typeInsertionPos, source.fileName, {}, hash),
                         // assign value to privatePropName
                         ts.createStatement(
                             ts.createAssignment(

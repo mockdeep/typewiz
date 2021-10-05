@@ -13,7 +13,12 @@ jest.doMock('fs', () => mockFs);
 
 import { applyTypes, getTypeCollectorSnippet, IApplyTypesOptions, IInstrumentOptions, instrument } from './index';
 
-function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions) {
+interface IIntegrationTestOptions {
+    typeCheck?: boolean;
+    applyTwice?: boolean;
+}
+
+function typeWiz(input: string, options?: IApplyTypesOptions & IIntegrationTestOptions) {
     // setup options to allow using the TypeChecker
     if (options && options.tsConfig) {
         options.tsCompilerHost = virtualCompilerHost(input, 'c:/test.ts');
@@ -34,11 +39,12 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     } as IInstrumentOptions);
 
     // Step 2: compile + add the type collector
-    const compiled = typeCheck
-        ? transpileSource(instrumented, 'test.ts')
-        : ts.transpile(instrumented, {
-              target: ts.ScriptTarget.ES2015,
-          });
+    const compiled =
+        options && options.typeCheck
+            ? transpileSource(instrumented, 'test.ts')
+            : ts.transpile(instrumented, {
+                  target: ts.ScriptTarget.ES2015,
+              });
 
     // Step 3: evaluate the code, and collect the runtime type information
     const collectedTypes = vm.runInNewContext(getTypeCollectorSnippet() + compiled + ';$_$twiz.get();');
@@ -48,6 +54,10 @@ function typeWiz(input: string, typeCheck = false, options?: IApplyTypesOptions)
     mockFs.writeFileSync.mockImplementationOnce(() => 0);
 
     applyTypes(collectedTypes, options);
+    if (options && options.applyTwice) {
+        mockFs.readFileSync.mockReturnValue(mockFs.writeFileSync.mock.calls[0][1]);
+        applyTypes(collectedTypes, options);
+    }
 
     if (options && options.tsConfig) {
         expect(options.tsConfigHost!.readFile).toHaveBeenCalledWith(options.tsConfig);
@@ -81,7 +91,7 @@ describe('function parameters', () => {
             greeter.sayGreeting();
         `;
 
-        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, { typeCheck: true, tsConfig: 'tsconfig.integration.json' })).toBe(`
             class Greeter {
                 text = "Hello World";
                 sayGreeting = greet;
@@ -107,7 +117,7 @@ describe('function parameters', () => {
             greeter.sayGreeting('user');
         `;
 
-        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, { typeCheck: true, tsConfig: 'tsconfig.integration.json' })).toBe(`
             class Greeter {
                 text = "Hello World: ";
                 sayGreeting = greet;
@@ -134,7 +144,7 @@ describe('function parameters', () => {
             const greeter = new Greeter();
             greeter.sayGreeting();
         `;
-        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, { typeCheck: true, tsConfig: 'tsconfig.integration.json' })).toBe(`
             class Greeter {
                 text: string;
                 constructor(){
@@ -157,7 +167,7 @@ describe('function parameters', () => {
             greet('World');
         `;
 
-        expect(typeWiz(input, true)).toBe(`
+        expect(typeWiz(input, { typeCheck: true })).toBe(`
             function greet(c: string) {
                 return 'Hello ' + c;
             }
@@ -314,7 +324,7 @@ describe('function parameters', () => {
             f(arr);
         `;
 
-        expect(typeWiz(input, false, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, { tsConfig: 'tsconfig.integration.json' })).toBe(`
             function f(a: string[]) {
             }
 
@@ -333,7 +343,7 @@ describe('function parameters', () => {
             f(promise);
         `;
 
-        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, { typeCheck: true, tsConfig: 'tsconfig.integration.json' })).toBe(`
             function f(a: Promise<number>) {
                 return a;
             }
@@ -353,7 +363,7 @@ describe('function parameters', () => {
             f(val);
         `;
 
-        expect(typeWiz(input, true, { tsConfig: 'tsconfig.integration.json' })).toBe(`
+        expect(typeWiz(input, { typeCheck: true, tsConfig: 'tsconfig.integration.json' })).toBe(`
             function f(a: {}) {
                 return a;
             }
@@ -436,7 +446,7 @@ describe('class fields', () => {
             const foo = new Foo();
         `;
 
-        expect(typeWiz(input, true)).toBe(`
+        expect(typeWiz(input, { typeCheck: true })).toBe(`
             class Foo {
                 readonly someValue: number;
                 constructor() {
@@ -555,8 +565,21 @@ describe('regression tests', () => {
     });
 });
 
-describe('apply-types options', () => {
-    describe('prefix', () => {
+describe('apply-types behavior', () => {
+    it('should fail with an exception when invoked twice', () => {
+        const input = `
+            function greet(name) {
+                return 'Hello, ' + name;
+            }
+            greet('Uri');
+        `;
+
+        expect(() => typeWiz(input, { applyTwice: true })).toThrowError(
+            'Hash mismatch! Source file has changed since type information was collected',
+        );
+    });
+
+    describe('prefix option', () => {
         it('should add the given prefix in front of the detected types', () => {
             const input = `
                 function greet(c) {
@@ -565,7 +588,7 @@ describe('apply-types options', () => {
                 greet('World');
             `;
 
-            expect(typeWiz(input, false, { prefix: '/*auto*/' })).toBe(`
+            expect(typeWiz(input, { prefix: '/*auto*/' })).toBe(`
                 function greet(c: /*auto*/string) {
                     return 'Hello ' + c;
                 }

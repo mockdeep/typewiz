@@ -3,20 +3,23 @@ import { IExtraOptions } from './instrument';
 class NestError extends Error {}
 
 export type ISourceLocation = [string, number]; /* filename, offset */
+export type ISourceLocationAndType = [string, number, string | null]; /* filename, offset, type */
 
-export type ICollectedTypeEntry = [
-    string /* filename */,
-    number /* offset */,
-    Array<[string | undefined, ISourceLocation | undefined]> /* discovered types */,
-    IExtraOptions
-];
+export interface ICollectedTypeEntry extends IExtraOptions {
+    types: Array<string | ISourceLocationAndType>;
+}
 
-export type ICollectedTypeInfo = ICollectedTypeEntry[];
+export interface IFileTypeInfo {
+    [key: number]: ICollectedTypeEntry;
+    hash: string;
+}
 
-interface IKey {
-    filename: string;
-    pos: number;
-    opts: ICollectedTypeInfo;
+export interface IHashDictionary {
+    [key: string]: string;
+}
+
+export interface ICollectedTypeInfo {
+    [key: string]: IFileTypeInfo;
 }
 
 let typeNameRunning = false;
@@ -130,20 +133,50 @@ function escapeSpecialKey(key: string) {
     }
     return key;
 }
-const logs: { [key: string]: Set<string> } = {};
+
+const collectedTypes: ICollectedTypeInfo = {};
 const trackedObjects = new WeakMap<object, ISourceLocation>();
 
-export function $_$twiz(name: string, value: any, pos: number, filename: string, optsJson: string) {
+function getOrCreateFile(name: string, hash: string) {
+    if (!collectedTypes[name]) {
+        collectedTypes[name] = {
+            hash,
+        };
+    }
+    return collectedTypes[name];
+}
+
+export function $_$twiz(value: any, pos: number, filename: string, optsJson: string, hash: string) {
     const opts = JSON.parse(optsJson) as ICollectedTypeInfo;
-    const objectDeclaration = trackedObjects.get(value);
-    const index = JSON.stringify({ filename, pos, opts } as IKey);
+    const objectDeclaration = trackedObjects.get(value) || null;
     try {
         const typeName = getTypeName(value);
-        if (!logs[index]) {
-            logs[index] = new Set();
+        const fileInfo = getOrCreateFile(filename, hash);
+        if (!fileInfo[pos]) {
+            fileInfo[pos] = {
+                types: [],
+                ...opts,
+            };
         }
-        const typeSpec = JSON.stringify([typeName, objectDeclaration]);
-        logs[index].add(typeSpec);
+        const typeOptions = fileInfo[pos].types;
+        if (objectDeclaration) {
+            const [source, offset] = objectDeclaration;
+            if (
+                !typeOptions.find((item) => {
+                    if (typeof item !== 'string') {
+                        const [s, o, t] = item;
+                        return s === source && o === offset && t === typeName;
+                    }
+                    return false;
+                })
+            ) {
+                typeOptions.push([source, offset, typeName]);
+            }
+        } else if (typeName) {
+            if (typeOptions.indexOf(typeName) < 0) {
+                typeOptions.push(typeName);
+            }
+        }
     } catch (e) {
         if (e instanceof NestError) {
             // simply ignore the type
@@ -156,14 +189,9 @@ export function $_$twiz(name: string, value: any, pos: number, filename: string,
 // tslint:disable:no-namespace
 export namespace $_$twiz {
     export const typeName = getTypeName;
-    export const get = () => {
-        return Object.keys(logs).map((key) => {
-            const { filename, pos, opts } = JSON.parse(key) as IKey;
-            const typeOptions = Array.from(logs[key]).map((v) => JSON.parse(v));
-            return [filename, pos, typeOptions, opts] as ICollectedTypeEntry;
-        });
-    };
-    export const track = (value: any, filename: string, offset: number) => {
+    export const get = () => collectedTypes;
+    export const track = (value: any, filename: string, offset: number, hash: string) => {
+        getOrCreateFile(filename, hash);
         if (value && (typeof value === 'object' || typeof value === 'function')) {
             trackedObjects.set(value, [filename, offset]);
         }

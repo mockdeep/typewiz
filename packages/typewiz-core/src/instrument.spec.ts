@@ -10,19 +10,26 @@ describe('instrument', () => {
     it('should instrument function parameters without types', () => {
         const input = `function (a) { return 5; }`;
         expect(instrument(input, 'test.ts')).toContain(
-            astPrettyPrint(`function (a) { $_$twiz("a", a, 11, "test.ts", "{}"); return 5; }`),
+            astPrettyPrint(
+                `function (a) { $_$twiz(a, 11, "test.ts", "{}", "72f01d0740f3f0ac5bd0f708b639b578"); return 5; }`,
+            ),
         );
     });
 
     it('should instrument function with two parameters', () => {
         const input = `function (a, b) { return 5; }`;
-        expect(instrument(input, 'test.ts')).toContain(astPrettyPrint(`$_$twiz("b", b, 14, "test.ts", "{}");`).trim());
+        expect(instrument(input, 'test.ts')).toContain(
+            astPrettyPrint(`$_$twiz(b, 14, "test.ts", "{}", "e1579a22f084265f8fb450beba126b53");`).trim(),
+        );
     });
 
     it('should instrument class method parameters', () => {
         const input = `class Foo { bar(a) { return 5; } }`;
         expect(instrument(input, 'test.ts')).toContain(
-            astPrettyPrint(`class Foo { bar(a) { $_$twiz("a", a, 17, "test.ts", "{}"); return 5; } }`),
+            astPrettyPrint(
+                // tslint:disable-next-line:max-line-length
+                `class Foo { bar(a) { $_$twiz(a, 17, "test.ts", "{}", "d8797d533a93b14ff250fc6b33511db2"); return 5; } }`,
+            ),
         );
     });
 
@@ -40,7 +47,7 @@ describe('instrument', () => {
         const input = `function (a) { return 5; }`;
         expect(instrument(input, 'test.ts')).toContain(
             astPrettyPrint(
-                `declare function $_$twiz(name: string, value: any, pos: number, filename: string, opts: any): void`,
+                `declare function $_$twiz(value: any, pos: number, filename: string, opts: any, hash: string): void`,
             ),
         );
     });
@@ -59,7 +66,7 @@ describe('instrument', () => {
                     instrumentCallExpressions: true,
                     skipTwizDeclarations: true,
                 }),
-            ).toMatch(`foo($_$twiz.track(bar, "test.ts", 4))`);
+            ).toMatch(`foo($_$twiz.track(bar, "test.ts", 4, "82792dee0fbe844bbbea67736c26447d"))`);
         });
 
         it('should not instrument numeric arguments in function calls', () => {
